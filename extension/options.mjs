@@ -7,6 +7,7 @@ import {
   toast,
   busy,
   enhanceSwitches,
+  enhanceButtons,
   applyTheme,
   markReady,
 } from './ui.mjs';
@@ -145,6 +146,7 @@ for (const preset of document.querySelectorAll('.presets button'))
 
 localize();
 enhanceSwitches();
+enhanceButtons();
 $('version').textContent = `v${chrome.runtime.getManifest().version}`;
 busy(() => update({ type: 'snapshot' }, true)).then(markReady);
 // Keep the page current when the popup changes something in another window.

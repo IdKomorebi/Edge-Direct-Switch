@@ -58,11 +58,26 @@ Local network (optional)       → DIRECT
 Everything else                → your proxy port (DIRECT if it is unreachable; optional)
 ```
 
+- **When does it take control?** Whenever a direct rule is active, not when you open a listed site: a one-time rule holds control until its tab closes, and **Saved sites** holds it for as long as the switch is on and the list is not empty. The rule must be in place before a page loads, otherwise its first request has already gone through the proxy. Turn **Saved sites** off and with no one-time rule the extension leaves Edge's proxy alone.
 - **Why a proxy port at all?** An extension can only replace Edge's proxy configuration as a whole; it cannot change one site and leave the rest untouched, and it cannot read the Windows system proxy. So while it is in control it must route every other site itself — to the port you enter. That is also why it takes control only while a direct rule is active.
 - **Resources:** the background worker only wakes for the popup, a tab close or browser start, then sleeps. Edge keeps and evaluates the rules itself.
 - **Scope:** only this Edge profile. Windows proxy settings and other apps are untouched. The extension **controls Edge's proxy only while at least one direct rule is active** and hands control back as soon as none are; disabling or removing it does the same.
 - **Proxy clients:** keep running as usual. While the extension is in control, other sites are sent to the fixed port in Settings, so it must be correct. Rules inside your client still apply to that traffic.
 - **Other proxy extensions:** only one extension can control the proxy. If another one does, a conflict is shown; this extension never fights for control.
+
+## Measured: does an active rule slow down proxied sites?
+
+No. `npm run bench` compares three setups in a real Edge against a local HTTPS site behind a local proxy with scripted delays and failures (see [testing](docs/TESTING.md)):
+
+| Scenario (120–200 requests each)          | No extension (system proxy) | Extension, fallback on | Extension, fallback off |
+| ----------------------------------------- | --------------------------- | ---------------------- | ----------------------- |
+| Stable proxy: new / reused connection p50 | 15 / 2 ms                   | 16 / 2 ms              | 15 / 2 ms               |
+| Jitter 20–150 ms: p50 / p95               | 93–108 / 156 ms             | 93–108 / 156 ms        | 94–109 / 156 ms         |
+| 10 % of tunnels reset: failure rate       | 9–14 %                      | 6–11 %                 | 6–14 %                  |
+| Requests switched to DIRECT on errors     | 0                           | 0                      | 0                       |
+| Proxy client closed                       | all fail                    | all go DIRECT          | all fail                |
+
+Differences are within noise (93 vs 108 ms is one 15.6 ms Windows timer tick). Proxy hiccups never trigger the DIRECT fallback; it applies only when the proxy port cannot be reached at all.
 
 ## Limits
 

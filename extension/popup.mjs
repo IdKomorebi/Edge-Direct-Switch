@@ -6,6 +6,7 @@ import {
   toast,
   busy,
   enhanceSwitches,
+  enhanceButtons,
   applyTheme,
   markReady,
 } from './ui.mjs';
@@ -117,6 +118,7 @@ $('count').addEventListener('click', () => chrome.runtime.openOptionsPage());
 
 localize();
 enhanceSwitches();
+enhanceButtons();
 $('version').textContent = `v${chrome.runtime.getManifest().version}`;
 busy(async () => {
   [tab] = await chrome.tabs.query({ active: true, currentWindow: true });

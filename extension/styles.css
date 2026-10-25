@@ -153,9 +153,14 @@ button:disabled {
   font-weight: 600;
   transition:
     background 0.15s,
-    transform 0.12s;
+    transform 0.4s cubic-bezier(0.3, 1.5, 0.5, 1);
 }
 .primary {
+  --mx: 50%;
+  --my: 50%;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   color: #fff;
   background: var(--accent);
   border: 1px solid rgb(0 0 0 / 6%);
@@ -163,8 +168,29 @@ button:disabled {
     inset 0 1px 0 rgb(255 255 255 / 28%),
     0 6px 16px -8px var(--accent);
 }
+/* Soft light under the pointer (position set in ui.mjs). */
+.primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    110px 70px at var(--mx) var(--my),
+    rgb(255 255 255 / 30%),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.25s;
+}
 .primary:not(:disabled):hover {
   background: var(--accent-hover);
+}
+.primary:not(:disabled):hover::after {
+  opacity: 0.7;
+}
+.primary.held::after {
+  opacity: 1;
 }
 .secondary {
   color: var(--accent-text);
@@ -172,8 +198,12 @@ button:disabled {
 .secondary:not(:disabled):hover {
   background: var(--surface-strong);
 }
-:is(.primary, .secondary, .pill):not(:disabled):active {
-  transform: scale(0.98);
+/* A small give when pressed. */
+:is(.primary, .secondary):not(:disabled):active {
+  transform: scale(1.02);
+}
+.pill:not(:disabled):active {
+  transform: scale(0.97);
 }
 .pill {
   display: inline-flex;
@@ -194,13 +224,22 @@ button:disabled {
   background: var(--surface-strong);
 }
 
-/* ---------- Switch (tap or drag; behavior in ui.mjs) ---------- */
+/*
+ * ---------- Switch (tap or drag; spring physics in ui.mjs) ----------
+ * The thumb's box is the held "lens"; at rest it is scaled down to a solid white pill.
+ * While held it turns into clear glass that refracts the track (SVG filter from ui.mjs).
+ */
 .switch {
-  --w: 54px;
+  --w: 62px;
   --h: 32px;
-  --tw: 30px;
-  --travel: 20px; /* --w − --tw − 4px */
-  --p: 0;
+  --travel: 20px; /* --w − 4px − rest pill width (38px) */
+  --lw: 44px; /* lens box */
+  --lh: 33px;
+  --rest: 0.864; /* 38 / 44 */
+  --p: 0; /* 0 = off, 1 = on */
+  --lens: 0; /* 0 = solid pill, 1 = glass lens */
+  --sx: 1; /* stretch while dragging */
+  --sy: 1;
   appearance: none;
   flex: none;
   position: relative;
@@ -213,10 +252,12 @@ button:disabled {
   touch-action: none;
 }
 .switch.small {
-  --w: 46px;
+  --w: 50px;
   --h: 28px;
-  --tw: 26px;
-  --travel: 16px;
+  --travel: 14px; /* 50 − 4 − 32 */
+  --lw: 37px;
+  --lh: 28px;
+  --rest: 0.865; /* 32 / 37 */
 }
 .switch:checked {
   --p: 1;
@@ -233,36 +274,38 @@ button:disabled {
 .switch::after {
   content: '';
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: var(--tw);
-  height: calc(var(--h) - 4px);
+  top: calc((var(--h) - var(--lh)) / 2);
+  left: calc(2px + (var(--lw) * var(--rest) - var(--lw)) / 2);
+  width: var(--lw);
+  height: var(--lh);
   border-radius: 999px;
-  background: #fff;
+  background:
+    radial-gradient(
+      60% 55% at 30% 22%,
+      rgb(255 255 255 / calc(var(--lens) * 45%)),
+      transparent 70%
+    ),
+    rgb(255 255 255 / calc(100% - var(--lens) * 86%));
+  backdrop-filter: var(--lens-filter, none) saturate(1.4) brightness(1.06);
   box-shadow:
+    inset 0 0 0 0.75px rgb(255 255 255 / calc(var(--lens) * 75%)),
+    inset 1.5px 1.5px 1px -1px rgb(255 255 255 / calc(var(--lens) * 95%)),
+    inset 0 -4px 6px -4px rgb(0 0 0 / calc(var(--lens) * 14%)),
     0 2px 5px rgb(0 0 0 / 16%),
     0 0 0 0.5px rgb(0 0 0 / 5%);
-  transform: translateX(calc(var(--p) * var(--travel)));
-  transition:
-    transform 0.3s cubic-bezier(0.3, 1.35, 0.5, 1),
-    background 0.18s,
-    box-shadow 0.18s;
+  transform: translateX(calc(var(--p) * var(--travel)))
+    scale(
+      calc((var(--rest) + (1 - var(--rest)) * var(--lens)) * var(--sx)),
+      calc((var(--rest) + (1 - var(--rest)) * var(--lens)) * var(--sy))
+    );
+  transition: transform 0.3s cubic-bezier(0.3, 1.35, 0.5, 1);
 }
-/* Held or dragged: the thumb swells into a clear glass lens. */
-.switch:is(.pressed, .dragging)::after {
-  transform: translateX(calc(var(--p) * var(--travel))) scale(1.18, 1.12);
-  background: rgb(255 255 255 / 38%);
-  backdrop-filter: blur(2px) saturate(170%);
-  box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 85%),
-    inset 0 1px 2px rgb(255 255 255 / 80%),
-    0 4px 12px rgb(0 0 0 / 18%);
-}
-.switch.dragging::before,
-.switch.dragging::after,
+/* JS drives every frame while animating; also no animation while a page first renders. */
+.switch.animating::before,
+.switch.animating::after,
 html:not(.ready) .switch::before,
 html:not(.ready) .switch::after {
-  transition: none; /* also: no animation while the page first shows its saved state */
+  transition: none;
 }
 .switch:disabled {
   cursor: default;

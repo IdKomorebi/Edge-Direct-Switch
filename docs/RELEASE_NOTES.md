@@ -1,7 +1,14 @@
-## Edge Direct Switch 2.1.0 · 网站直连开关
+## Edge Direct Switch 2.2.0 · 网站直连开关
 
 代理一直开着，某个网站打不开时，点一下让它单独直连。
 Keep your proxy on and let one website connect directly with one click.
+
+### 2.2 新变化 / What's new in 2.2
+
+- 玻璃质感开关：更长，按住时圆钮变成透明玻璃并折射底下的轨道，带弹性回弹；主按钮有跟随鼠标的柔光。
+  Glass switches with spring motion; a soft pointer light on primary buttons.
+- 实测：接管后走代理的网站没有额外延迟，节点波动也不会触发直连兜底（README 有数据）。
+  Measured: no added latency for proxied sites, and proxy hiccups never trigger the DIRECT fallback.
 
 ### 2.1 新变化 / What's new in 2.1
 
@@ -25,7 +32,7 @@ Keep your proxy on and let one website connect directly with one click.
 
 ### 安装 / Install
 
-下载 `edge-direct-switch-2.1.0.zip` 并解压到固定文件夹 → 打开 `edge://extensions` → 开启「开发人员模式」→「加载解压缩的扩展」→ 选择包含 `manifest.json` 的文件夹。之后在设置里确认代理端口。
+下载 `edge-direct-switch-2.2.0.zip` 并解压到固定文件夹 → 打开 `edge://extensions` → 开启「开发人员模式」→「加载解压缩的扩展」→ 选择包含 `manifest.json` 的文件夹。之后在设置里确认代理端口。
 
 Download and extract the ZIP, open `edge://extensions`, enable Developer mode, choose **Load unpacked** and select the extracted folder. Then check the proxy port in Settings.
 

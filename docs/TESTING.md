@@ -35,6 +35,23 @@ Screenshots for the README are written to `test-results/` (`popup-*.png`, `optio
 
 Environment variables: `TEST_BROWSER` (Playwright channel, default `msedge`), `TEST_EXECUTABLE` (explicit browser binary), `PLAYWRIGHT_MODULE` (path to an existing Playwright install), `TEST_LANG` (default `zh-CN`).
 
+## Routing benchmark
+
+```sh
+npm run bench                      # BENCH_N=120 requests per phase by default
+BENCH_ONLY="jitter,reset 10%" npm run bench
+```
+
+Answers "does an active direct rule slow down or destabilise proxied sites?". Requires Edge and `openssl` (bundled with Git for Windows). It compares three setups in a throwaway profile:
+
+| Config       | What it is                                                                                                           |
+| ------------ | -------------------------------------------------------------------------------------------------------------------- |
+| `baseline`   | No extension; Edge started with `--proxy-server` — the same fixed-proxy path a proxy client's system-proxy mode uses |
+| `pac`        | The extension in control with one direct rule active, DIRECT fallback on                                             |
+| `pac-strict` | The same with the fallback off                                                                                       |
+
+Traffic goes to a local HTTPS site through a local CONNECT proxy whose behaviour is scripted: `stable`, `jitter` (20–150 ms per tunnel), 10 % of tunnels `reset`, answered with `502`, or `drop`ped right after being established, and `proxy down`. The site answers `PROXY` or `DIRECT`, so each request's real route is counted. Each run measures new-connection requests (a fresh host each time) and keep-alive requests (one host). Results go to `test-results/proxy-bench.json`.
+
 ## Releasing
 
 1. Update the version in `package.json`, `package-lock.json` and `extension/manifest.json`.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.0 — 2026-10-26
+
+- **Glass switches:** longer, spring-animated, and while held the thumb turns into a clear lens that refracts the track beneath it; dragging stretches it slightly. Primary buttons get a soft light that follows the pointer.
+- **Measured routing impact** (`npm run bench`): with a direct rule active, proxied sites showed no extra latency against a plain fixed proxy, and proxy hiccups (reset / 502 / dropped tunnels) never caused a fallback to DIRECT. The fallback only kicks in when the proxy port cannot be reached at all.
+- Docs explain exactly when the extension takes control of Edge's proxy.
+
 ## 2.1.0 — 2026-10-25
 
 - **“Whole site” means the same everywhere.** The settings page used to extend a rule only below the typed host (`*.cpipc.acge.org.cn`), while the popup covered the whole site (`*.acge.org.cn`). Both now use the site, the exact scope is shown, and Settings previews what will be added. Shared-hosting suffixes such as `github.io` are recognized.

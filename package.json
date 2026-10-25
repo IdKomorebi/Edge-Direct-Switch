@@ -1,6 +1,6 @@
 {
   "name": "edge-direct-switch",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
   "type": "module",
   "description": "Keep your proxy on and let the current website connect directly in Microsoft Edge",
@@ -11,7 +11,8 @@
     "format:check": "prettier --check .",
     "test:browser": "node scripts/browser-smoke.mjs",
     "check": "node scripts/check-package.mjs",
-    "icons": "node scripts/make-icons.mjs"
+    "icons": "node scripts/make-icons.mjs",
+    "bench": "node scripts/proxy-bench.mjs"
   },
   "engines": {
     "node": ">=20"
