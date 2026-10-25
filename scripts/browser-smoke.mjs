@@ -2,7 +2,7 @@
 // Usage: npm run test:browser            (TEST_LANG=en for English UI screenshots)
 import { createRequire } from 'node:module';
 import { createServer } from 'node:http';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -70,7 +70,7 @@ try {
   };
   async function openPopup(page) {
     const popup = await context.newPage();
-    await popup.setViewportSize({ width: 320, height: 420 });
+    await popup.setViewportSize({ width: 330, height: 440 });
     const query = new URLSearchParams({ tab: await tabIdOf(page), url: page.url() });
     await popup.goto(`${base}/popup.html?${query}`);
     await popup.locator('#toggle:enabled').waitFor();
@@ -85,6 +85,37 @@ try {
       await new Promise((r) => setTimeout(r, 100));
     return (await level()) !== 'controlled_by_this_extension';
   };
+
+  // README image: the popup before and after "Connect directly", with an arrow between.
+  async function composeFlow() {
+    const img = async (name) =>
+      `data:image/png;base64,${(await readFile(path.join(results, name))).toString('base64')}`;
+    const [before, after] = await Promise.all([
+      img(`popup-${lang}.png`),
+      img(`popup-direct-${lang}.png`),
+    ]);
+    const caption =
+      lang === 'en'
+        ? ['① Click “Connect directly”', '② Direct until you close the tab']
+        : ['① 打开网站，点「本页直连」', '② 已直连，关闭标签页后恢复代理'];
+    const page = await context.newPage();
+    await page.setViewportSize({ width: 900, height: 600 });
+    await page.setContent(`<style>
+      body{margin:0;font:600 15px 'Segoe UI','Microsoft YaHei UI',sans-serif;color:#3b3e55}
+      .wrap{display:inline-flex;align-items:center;gap:28px;padding:28px 36px;border-radius:28px;
+        background:#ececf0}
+      figure{margin:0;display:grid;gap:12px;justify-items:center}
+      img{width:330px;border-radius:22px;box-shadow:0 0 0 1px rgb(0 0 0/.06),0 16px 36px -18px rgb(0 0 0/.35)}
+      .arrow{font-size:38px;color:#5856d6;margin-bottom:34px}
+    </style><div class="wrap"><figure><img src="${before}"><figcaption>${caption[0]}</figcaption></figure>
+      <div class="arrow">➜</div>
+      <figure><img src="${after}"><figcaption>${caption[1]}</figcaption></figure></div>`);
+    await page.locator('.wrap').screenshot({
+      path: path.join(results, `flow-${lang}.png`),
+      omitBackground: true,
+    });
+    await page.close();
+  }
 
   // 1. Installing changes nothing.
   assert.notEqual(await level(), 'controlled_by_this_extension');
@@ -117,6 +148,7 @@ try {
   await popup.emulateMedia({ colorScheme: 'dark' });
   await popup.locator('body').screenshot({ path: path.join(results, `popup-dark-${lang}.png`) });
   await popup.close();
+  await composeFlow();
 
   // 4. Closing the tab ends the one-time rule.
   const siteUrl = site.url();
@@ -168,15 +200,57 @@ try {
   assert.equal(await reloaded(other, popup.locator('#toggle').click()), 'PROXY');
   await popup.close();
 
-  // 9. Documentation screenshot with example entries only.
+  // 9. Switches: only the switch toggles (not its label), and dragging works.
+  const autoReload = options.locator('#autoReload');
+  const stored = async () =>
+    (await options.evaluate(() => chrome.runtime.sendMessage({ type: 'snapshot' }))).data.settings
+      .autoReload;
+  await options.locator('#autoReload-label').click();
+  assert.equal(await autoReload.isChecked(), true, 'label text must not toggle');
+  const box = await autoReload.boundingBox();
+  const cy = box.y + box.height / 2;
+  await options.mouse.move(box.x + box.width - 8, cy);
+  await options.mouse.down();
+  await options.mouse.move(box.x + 4, cy, { steps: 8 });
+  await options.mouse.up();
+  await options.locator('#autoReload:not(:checked)').waitFor();
+  for (let i = 0; i < 20 && (await stored()) !== false; i++) await options.waitForTimeout(100);
+  assert.equal(await stored(), false, 'drag left turns the switch off');
+  // A drag that returns to where it started changes nothing.
+  await options.mouse.move(box.x + 8, cy);
+  await options.mouse.down();
+  await options.mouse.move(box.x + box.width - 4, cy, { steps: 5 });
+  await options.mouse.move(box.x + 6, cy, { steps: 5 });
+  await options.mouse.up();
+  await options.waitForTimeout(300);
+  assert.equal(await autoReload.isChecked(), false);
+  await autoReload.click();
+  await options.locator('#autoReload:checked').waitFor();
+
+  // 10. Appearance: an explicit choice overrides the system and survives a reload.
+  await options.locator('[data-theme-value=dark]').click();
+  await options.locator('html[data-theme=dark]').waitFor({ state: 'attached' });
+  await options.reload();
+  await options.locator('html[data-theme=dark]').waitFor({ state: 'attached' });
+  await options.screenshot({
+    path: path.join(results, `options-dark-${lang}.png`),
+    fullPage: true,
+  });
+  await options.locator('[data-theme-value=system]').click();
+  await options.locator('[data-theme-value=system][aria-pressed=true]').waitFor();
+  assert.equal(await options.locator('html').getAttribute('data-theme'), null);
+
+  // 11. Documentation screenshot with example entries only.
   await options.getByRole('button', { name: /anchor\.route\.test/ }).click();
   await options.locator('#domain').fill('gmis.xjtu.edu.cn');
   await options.locator('#add-form button').click();
   await options.getByText('gmis.xjtu.edu.cn', { exact: true }).waitFor();
   await options.locator('#domain').fill('cpipc.acge.org.cn');
   await options.locator('#subdomains').check();
+  await options.locator('#preview').filter({ hasText: 'acge.org.cn' }).waitFor();
   await options.locator('#add-form button').click();
-  await options.getByText('cpipc.acge.org.cn', { exact: true }).waitFor();
+  // "Whole site" from the settings page means the same as in the popup.
+  await options.getByText('acge.org.cn', { exact: true }).waitFor();
   await options.locator('#port').fill('7890');
   await options.locator('#proxy-form button[type=submit]').click();
   await options.locator('#message:not([hidden])').waitFor();

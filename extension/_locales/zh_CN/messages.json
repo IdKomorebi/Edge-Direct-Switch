@@ -51,20 +51,7 @@
     "message": "局域网地址始终直连，可在设置中关闭"
   },
   "optWide": {
-    "message": "包含整个 $ROOT$",
-    "placeholders": {
-      "root": {
-        "content": "$1"
-      }
-    }
-  },
-  "optSubdomains": {
-    "message": "包含 $HOST$ 的子域名",
-    "placeholders": {
-      "host": {
-        "content": "$1"
-      }
-    }
+    "message": "包含整个站点"
   },
   "optRemember": {
     "message": "始终直连此网站"
@@ -174,7 +161,7 @@
     "message": "例如 gmis.xjtu.edu.cn"
   },
   "optAddSubdomains": {
-    "message": "包含子域名"
+    "message": "包含整个站点"
   },
   "btnAdd": {
     "message": "添加"
@@ -186,7 +173,7 @@
     "message": "仅此域名"
   },
   "scopeWide": {
-    "message": "含子域名"
+    "message": "整个站点 · 含所有子域名"
   },
   "btnRemove": {
     "message": "删除"
@@ -219,5 +206,41 @@
   },
   "how4": {
     "message": "网站的登录、视频等内容可能来自其他域名。若页面只有部分内容加载失败，可选择「包含整个站点」或在这里手动添加。"
+  },
+  "optWideDesc": {
+    "message": "$ROOT$ 及其所有子域名",
+    "placeholders": {
+      "root": {
+        "content": "$1"
+      }
+    }
+  },
+  "previewExact": {
+    "message": "将添加：$HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "previewWide": {
+    "message": "将添加：$ROOT$ 及其所有子域名",
+    "placeholders": {
+      "root": {
+        "content": "$1"
+      }
+    }
+  },
+  "secAppearance": {
+    "message": "外观"
+  },
+  "themeSystem": {
+    "message": "跟随系统"
+  },
+  "themeLight": {
+    "message": "浅色"
+  },
+  "themeDark": {
+    "message": "深色"
   }
 }

@@ -2,6 +2,7 @@
 // Errors carry i18n message keys; the UI translates them.
 
 export const MAX_SITES = 500;
+export const THEMES = ['system', 'light', 'dark'];
 
 export function defaultSettings() {
   return {
@@ -11,6 +12,7 @@ export function defaultSettings() {
     fallbackDirect: true, // `PROXY x; DIRECT`: keep Edge usable if the proxy client stops
     bypassPrivate: true,
     autoReload: true,
+    theme: 'system', // 'system' | 'light' | 'dark'
     sites: [],
   };
 }
@@ -67,7 +69,7 @@ export function matches(host, rule) {
 }
 
 const isIp = (host) => host.startsWith('[') || /^\d+(?:\.\d+){3}$/.test(host);
-// Second-level labels that are public suffixes under country TLDs (edu.cn, co.uk, com.hk …).
+// Second-level labels that are public suffixes under country TLDs (edu.cn, org.cn, co.uk …).
 const GENERIC_SLD = new Set([
   'ac',
   'co',
@@ -81,15 +83,42 @@ const GENERIC_SLD = new Set([
   'or',
   'go',
 ]);
+// Shared hosting suffixes where every subdomain belongs to someone else.
+const SHARED_SUFFIX = new Set([
+  'github.io',
+  'gitlab.io',
+  'pages.dev',
+  'workers.dev',
+  'vercel.app',
+  'netlify.app',
+  'herokuapp.com',
+  'blogspot.com',
+  'appspot.com',
+  'azurewebsites.net',
+  'cloudfront.net',
+]);
 
-// Best-effort "whole site" suggestion: gmis.xjtu.edu.cn → xjtu.edu.cn, www.bilibili.com → bilibili.com.
-// Returns null when the host already is the site root or is an IP address.
+// The "site" a host belongs to (its registrable domain), used for "whole site" rules:
+// cpipc.acge.org.cn → acge.org.cn, www.bilibili.com → bilibili.com, github.com → github.com.
+// A best-effort heuristic, not the full Public Suffix List. Returns null for IP addresses.
 export function siteRoot(host) {
   if (isIp(host)) return null;
   const labels = host.split('.');
+  const lastTwo = labels.slice(-2).join('.');
   const keep =
-    labels.length >= 3 && labels.at(-1).length === 2 && GENERIC_SLD.has(labels.at(-2)) ? 3 : 2;
-  return labels.length > keep ? labels.slice(-keep).join('.') : null;
+    labels.length >= 3 &&
+    ((labels.at(-1).length === 2 && GENERIC_SLD.has(labels.at(-2))) || SHARED_SUFFIX.has(lastTwo))
+      ? 3
+      : 2;
+  return labels.slice(-keep).join('.');
+}
+
+// Rules with `subdomains` always cover a whole site, wherever they were created.
+export function siteRule(host, whole) {
+  const domain = normalizeHost(host);
+  return whole
+    ? { domain: siteRoot(domain) ?? domain, subdomains: true }
+    : { domain, subdomains: false };
 }
 
 export function isPrivateHost(host) {
@@ -182,6 +211,7 @@ export function migrate(stored) {
     fallbackDirect: bool('fallbackDirect'),
     bypassPrivate: bool('bypassPrivate'),
     autoReload: bool('autoReload'),
+    theme: THEMES.includes(stored.theme) ? stored.theme : base.theme,
     sites: sites.slice(0, MAX_SITES),
   };
 }

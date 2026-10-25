@@ -1,5 +1,6 @@
 import {
   MAX_SITES,
+  THEMES,
   activeRules,
   buildPac,
   matches,
@@ -9,6 +10,7 @@ import {
   routeFor,
   sameRule,
   siteRoot,
+  siteRule,
   validateProxy,
 } from './core.mjs';
 
@@ -126,9 +128,7 @@ export class Controller {
         nextTemps = temps.filter((r) => !matches(host, r));
         if (settings.alwaysOn) settings.sites = settings.sites.filter((r) => !matches(host, r));
         if (message.direct === true) {
-          const rule = message.wide
-            ? { domain: siteRoot(host) ?? host, subdomains: true }
-            : { domain: host, subdomains: false };
+          const rule = siteRule(host, message.wide === true);
           if (remember) settings.sites.push(rule);
           else {
             if (!Number.isInteger(message.tabId) || message.tabId < 0) throw new Error('errTab');
@@ -145,9 +145,13 @@ export class Controller {
         settings.proxy = validateProxy(message.proxy);
         for (const key of ['fallbackDirect', 'bypassPrivate', 'autoReload'])
           if (typeof message[key] === 'boolean') settings[key] = message[key];
+        if (message.theme !== undefined) {
+          if (!THEMES.includes(message.theme)) throw new Error('errUnsupported');
+          settings.theme = message.theme;
+        }
         break;
       case 'addSite': {
-        const rule = normalizeRule(message.rule);
+        const rule = siteRule(message.rule?.domain, message.rule?.subdomains === true);
         settings.sites = settings.sites.filter((r) => !sameRule(r, rule));
         settings.sites.push(rule);
         break;

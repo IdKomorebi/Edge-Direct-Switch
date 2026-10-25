@@ -6,6 +6,7 @@
     <title data-i18n="optionsTitle">Edge Direct Switch</title>
     <link rel="icon" href="icons/32.png" />
     <link rel="stylesheet" href="styles.css" />
+    <script src="theme.js"></script>
   </head>
   <body class="options">
     <div class="page">
@@ -15,7 +16,7 @@
         <span id="version" class="chip"></span>
       </header>
 
-      <section class="card">
+      <section class="glass">
         <div class="section-head">
           <div>
             <h2 id="saved-title" data-i18n="savedSites"></h2>
@@ -37,21 +38,29 @@
             data-i18n-placeholder="domainPlaceholder"
             data-i18n-title="fieldDomain"
           />
-          <label class="check"
-            ><input id="subdomains" type="checkbox" /><span data-i18n="optAddSubdomains"></span
-          ></label>
+          <div class="add-switch">
+            <span id="subdomains-label" data-i18n="optAddSubdomains"></span>
+            <input
+              id="subdomains"
+              type="checkbox"
+              role="switch"
+              class="switch small"
+              aria-labelledby="subdomains-label"
+            />
+          </div>
           <button class="primary" type="submit" data-i18n="btnAdd"></button>
         </form>
+        <p id="preview" class="preview" aria-live="polite"></p>
         <div id="sites" class="list rules"></div>
       </section>
 
-      <section id="temps-card" class="card" hidden>
+      <section id="temps-card" class="glass" hidden>
         <h2 data-i18n="secTemps"></h2>
         <p class="desc" data-i18n="secTempsDesc"></p>
         <div id="temps" class="list rules"></div>
       </section>
 
-      <section class="card">
+      <section class="glass">
         <h2 data-i18n="secProxy"></h2>
         <p class="desc" data-i18n="secProxyDesc"></p>
         <form id="proxy-form" class="fields">
@@ -73,34 +82,72 @@
           <button class="primary" type="submit" data-i18n="btnSave"></button>
         </form>
         <div class="presets">
-          <span class="muted" data-i18n="presets"></span>
-          <button type="button" data-scheme="http" data-port="7890">7890 · Clash / Mihomo</button>
-          <button type="button" data-scheme="http" data-port="7897">7897 · Clash Verge Rev</button>
-          <button type="button" data-scheme="socks5" data-port="10808">10808 · v2rayN</button>
+          <span class="presets-label" data-i18n="presets"></span>
+          <button type="button" class="pill" data-scheme="http" data-port="7890">
+            7890 · Clash / Mihomo
+          </button>
+          <button type="button" class="pill" data-scheme="http" data-port="7897">
+            7897 · Clash Verge Rev
+          </button>
+          <button type="button" class="pill" data-scheme="socks5" data-port="10808">
+            10808 · v2rayN
+          </button>
         </div>
         <div class="list">
-          <label class="row">
+          <div class="row">
             <span class="row-text"
-              ><span data-i18n="optFallback"></span><small data-i18n="optFallbackDesc"></small
+              ><span id="fallbackDirect-label" data-i18n="optFallback"></span
+              ><small data-i18n="optFallbackDesc"></small
             ></span>
-            <input id="fallbackDirect" type="checkbox" role="switch" class="switch" />
-          </label>
-          <label class="row">
+            <input
+              id="fallbackDirect"
+              type="checkbox"
+              role="switch"
+              class="switch"
+              aria-labelledby="fallbackDirect-label"
+            />
+          </div>
+          <div class="row">
             <span class="row-text"
-              ><span data-i18n="optPrivate"></span><small data-i18n="optPrivateDesc"></small
+              ><span id="bypassPrivate-label" data-i18n="optPrivate"></span
+              ><small data-i18n="optPrivateDesc"></small
             ></span>
-            <input id="bypassPrivate" type="checkbox" role="switch" class="switch" />
-          </label>
-          <label class="row">
+            <input
+              id="bypassPrivate"
+              type="checkbox"
+              role="switch"
+              class="switch"
+              aria-labelledby="bypassPrivate-label"
+            />
+          </div>
+          <div class="row">
             <span class="row-text"
-              ><span data-i18n="optReload"></span><small data-i18n="optReloadDesc"></small
+              ><span id="autoReload-label" data-i18n="optReload"></span
+              ><small data-i18n="optReloadDesc"></small
             ></span>
-            <input id="autoReload" type="checkbox" role="switch" class="switch" />
-          </label>
+            <input
+              id="autoReload"
+              type="checkbox"
+              role="switch"
+              class="switch"
+              aria-labelledby="autoReload-label"
+            />
+          </div>
         </div>
       </section>
 
-      <details class="card">
+      <section class="glass">
+        <div class="section-head center">
+          <h2 id="theme-title" data-i18n="secAppearance"></h2>
+          <div id="theme" class="segmented" role="group" aria-labelledby="theme-title">
+            <button type="button" data-theme-value="system" data-i18n="themeSystem"></button>
+            <button type="button" data-theme-value="light" data-i18n="themeLight"></button>
+            <button type="button" data-theme-value="dark" data-i18n="themeDark"></button>
+          </div>
+        </div>
+      </section>
+
+      <details class="glass">
         <summary data-i18n="secHow"></summary>
         <p data-i18n="how1"></p>
         <p data-i18n="how2"></p>

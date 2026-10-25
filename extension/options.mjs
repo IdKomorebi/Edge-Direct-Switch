@@ -1,4 +1,15 @@
-import { $, t, localize, request, toast, busy } from './ui.mjs';
+import { siteRule } from './core.mjs';
+import {
+  $,
+  t,
+  localize,
+  request,
+  toast,
+  busy,
+  enhanceSwitches,
+  applyTheme,
+  markReady,
+} from './ui.mjs';
 
 let snap;
 
@@ -13,7 +24,7 @@ function ruleRow(rule, onRemove) {
   scope.textContent = t(rule.subdomains ? 'scopeWide' : 'scopeExact');
   text.append(name, scope);
   const remove = document.createElement('button');
-  remove.className = 'link danger';
+  remove.className = 'remove';
   remove.textContent = t('btnRemove');
   remove.setAttribute('aria-label', t('ariaRemove', rule.domain));
   remove.addEventListener('click', () => busy(() => update(onRemove(rule))));
@@ -23,6 +34,9 @@ function ruleRow(rule, onRemove) {
 
 function render(fillForm = false) {
   const { settings, temps, conflict } = snap;
+  applyTheme(settings.theme);
+  for (const button of $('theme').querySelectorAll('button'))
+    button.setAttribute('aria-pressed', String(button.dataset.themeValue === settings.theme));
   $('alwaysOn').checked = settings.alwaysOn;
   for (const key of ['fallbackDirect', 'bypassPrivate', 'autoReload'])
     $(key).checked = settings[key];
@@ -56,10 +70,11 @@ async function update(message, fillForm = false) {
   render(fillForm);
 }
 
-const saveSettings = (proxy = snap.settings.proxy) =>
+const saveSettings = (proxy = snap.settings.proxy, extra = {}) =>
   update({
     type: 'settings',
     proxy,
+    ...extra,
     fallbackDirect: $('fallbackDirect').checked,
     bypassPrivate: $('bypassPrivate').checked,
     autoReload: $('autoReload').checked,
@@ -75,6 +90,24 @@ for (const key of ['fallbackDirect', 'bypassPrivate', 'autoReload'])
     busy(() => saveSettings()).finally(() => snap && render()),
   );
 
+// Show exactly what will be added, so "whole site" is never a surprise.
+function preview() {
+  let text = '';
+  try {
+    const rule = siteRule($('domain').value, $('subdomains').checked);
+    text = rule.subdomains ? t('previewWide', rule.domain) : t('previewExact', rule.domain);
+  } catch {}
+  $('preview').textContent = $('domain').value.trim() ? text : '';
+}
+$('domain').addEventListener('input', preview);
+$('subdomains').addEventListener('change', preview);
+
+for (const button of $('theme').querySelectorAll('button'))
+  button.addEventListener('click', () => {
+    applyTheme(button.dataset.themeValue); // instant feedback, then persist
+    busy(() => saveSettings(undefined, { theme: button.dataset.themeValue }));
+  });
+
 $('add-form').addEventListener('submit', (event) => {
   event.preventDefault();
   const domain = $('domain').value;
@@ -85,6 +118,7 @@ $('add-form').addEventListener('submit', (event) => {
     if ($('domain').value === domain) {
       $('domain').value = '';
       $('subdomains').checked = false;
+      preview();
     }
   });
 });
@@ -110,7 +144,8 @@ for (const preset of document.querySelectorAll('.presets button'))
   });
 
 localize();
+enhanceSwitches();
 $('version').textContent = `v${chrome.runtime.getManifest().version}`;
-busy(() => update({ type: 'snapshot' }, true));
+busy(() => update({ type: 'snapshot' }, true)).then(markReady);
 // Keep the page current when the popup changes something in another window.
 chrome.storage.onChanged.addListener(() => busy(() => update({ type: 'snapshot' })));

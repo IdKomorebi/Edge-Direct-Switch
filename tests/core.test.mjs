@@ -9,6 +9,7 @@ import {
   normalizeHost,
   routeFor,
   siteRoot,
+  siteRule,
   validateProxy,
 } from '../extension/core.mjs';
 
@@ -35,15 +36,28 @@ test('validateProxy checks scheme, host and port', () => {
   assert.throws(() => validateProxy({ scheme: 'http', host: 'a', port: 70000 }), /errProxyPort/);
 });
 
-test('siteRoot suggests the registrable domain and respects ccTLD second levels', () => {
-  assert.equal(siteRoot('gmis.xjtu.edu.cn'), 'xjtu.edu.cn');
+test('siteRoot finds the registrable domain and respects public suffixes', () => {
   assert.equal(siteRoot('cpipc.acge.org.cn'), 'acge.org.cn');
+  assert.equal(siteRoot('gmis.xjtu.edu.cn'), 'xjtu.edu.cn');
+  assert.equal(siteRoot('xjtu.edu.cn'), 'xjtu.edu.cn'); // never edu.cn
   assert.equal(siteRoot('www.bilibili.com'), 'bilibili.com');
-  assert.equal(siteRoot('bilibili.com'), null);
-  assert.equal(siteRoot('xjtu.edu.cn'), null); // never suggest edu.cn
+  assert.equal(siteRoot('github.com'), 'github.com');
   assert.equal(siteRoot('news.bbc.co.uk'), 'bbc.co.uk');
+  assert.equal(siteRoot('docs.alice.github.io'), 'alice.github.io'); // not all of github.io
   assert.equal(siteRoot('10.0.0.1'), null);
   assert.equal(siteRoot('[::1]'), null);
+});
+
+test('siteRule: "whole site" means the same thing everywhere', () => {
+  assert.deepEqual(siteRule('https://cpipc.acge.org.cn/login', true), {
+    domain: 'acge.org.cn',
+    subdomains: true,
+  });
+  assert.deepEqual(siteRule('cpipc.acge.org.cn', false), {
+    domain: 'cpipc.acge.org.cn',
+    subdomains: false,
+  });
+  assert.deepEqual(siteRule('10.0.0.1', true), { domain: '10.0.0.1', subdomains: true });
 });
 
 test('matches handles exact and subdomain rules without suffix confusion', () => {

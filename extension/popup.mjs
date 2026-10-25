@@ -1,4 +1,14 @@
-import { $, t, localize, request, toast, busy } from './ui.mjs';
+import {
+  $,
+  t,
+  localize,
+  request,
+  toast,
+  busy,
+  enhanceSwitches,
+  applyTheme,
+  markReady,
+} from './ui.mjs';
 
 let tab, snap;
 let wideChoice = false; // scope picked before the page is switched to direct
@@ -10,6 +20,7 @@ const routeKey = (s) =>
 
 function render() {
   const { settings, route, host, root, conflict } = snap;
+  applyTheme(settings.theme);
   $('alwaysOn').checked = settings.alwaysOn;
   $('count').textContent = t('siteCount', String(settings.sites.length));
 
@@ -33,18 +44,21 @@ function render() {
   toggle.disabled = !host || kind === 'private';
   toggle.textContent = t(direct ? 'btnRestore' : 'btnDirect');
   toggle.className = `big ${direct ? 'secondary' : 'primary'}`;
-  $('hint').textContent = t(
-    {
-      proxy: 'hintProxy',
-      savedOff: 'hintProxy',
-      temporary: 'hintTemporary',
-      saved: 'hintSaved',
-      private: 'hintPrivate',
-    }[kind] ?? 'unsupportedHint',
-  );
+  const hint = {
+    proxy: ['hintProxy', 'info'],
+    savedOff: ['hintProxy', 'info'],
+    temporary: ['hintTemporary', 'clock'],
+    saved: ['hintSaved', 'check'],
+    private: ['hintPrivate', 'check'],
+  }[kind] ?? ['unsupportedHint', 'info'];
+  $('hint').querySelector('span').textContent = t(hint[0]);
+  $('hint').dataset.icon = hint[1];
 
   $('options').hidden = !host || kind === 'private';
-  $('wideLabel').textContent = root ? t('optWide', root) : t('optSubdomains', host ?? '');
+  // "Whole site" always covers the registrable domain; say exactly what that includes.
+  const wideRoot = direct && route.rule.subdomains ? route.rule.domain : root;
+  $('wide').closest('.row').hidden = !wideRoot;
+  $('wide-desc').textContent = wideRoot ? t('optWideDesc', wideRoot) : '';
   $('wide').checked = direct ? route.rule.subdomains : wideChoice;
   $('remember').checked = ['saved', 'savedOff'].includes(kind);
   $('remember').disabled = !settings.alwaysOn;
@@ -102,10 +116,12 @@ $('openSettings').addEventListener('click', () => chrome.runtime.openOptionsPage
 $('count').addEventListener('click', () => chrome.runtime.openOptionsPage());
 
 localize();
+enhanceSwitches();
 $('version').textContent = `v${chrome.runtime.getManifest().version}`;
 busy(async () => {
   [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const host = /^https?:\/\//.test(tab?.url ?? '') ? new URL(tab.url).hostname : null;
   snap = await request({ type: 'snapshot', host });
   render();
+  markReady();
 });

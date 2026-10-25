@@ -39,10 +39,10 @@
     "message": "Use proxy again"
   },
   "hintProxy": {
-    "message": "Only this site bypasses the proxy"
+    "message": "Other sites keep the proxy"
   },
   "hintTemporary": {
-    "message": "The proxy comes back when you close this tab"
+    "message": "Until you close this tab"
   },
   "hintSaved": {
     "message": "This site always connects directly"
@@ -51,20 +51,7 @@
     "message": "Local addresses always connect directly"
   },
   "optWide": {
-    "message": "Whole site: *.$ROOT$",
-    "placeholders": {
-      "root": {
-        "content": "$1"
-      }
-    }
-  },
-  "optSubdomains": {
-    "message": "Include *.$HOST$",
-    "placeholders": {
-      "host": {
-        "content": "$1"
-      }
-    }
+    "message": "Whole site"
   },
   "optRemember": {
     "message": "Always connect directly"
@@ -174,7 +161,7 @@
     "message": "e.g. portal.example.edu"
   },
   "optAddSubdomains": {
-    "message": "Include subdomains"
+    "message": "Whole site"
   },
   "btnAdd": {
     "message": "Add"
@@ -186,7 +173,7 @@
     "message": "This domain only"
   },
   "scopeWide": {
-    "message": "Including subdomains"
+    "message": "Whole site · all subdomains"
   },
   "btnRemove": {
     "message": "Remove"
@@ -219,5 +206,41 @@
   },
   "how4": {
     "message": "Logins and videos are sometimes served from other domains. If only part of a page fails, include the whole site or add those domains here."
+  },
+  "optWideDesc": {
+    "message": "$ROOT$ and all its subdomains",
+    "placeholders": {
+      "root": {
+        "content": "$1"
+      }
+    }
+  },
+  "previewExact": {
+    "message": "Adds: $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "previewWide": {
+    "message": "Adds: $ROOT$ and all its subdomains",
+    "placeholders": {
+      "root": {
+        "content": "$1"
+      }
+    }
+  },
+  "secAppearance": {
+    "message": "Appearance"
+  },
+  "themeSystem": {
+    "message": "System"
+  },
+  "themeLight": {
+    "message": "Light"
+  },
+  "themeDark": {
+    "message": "Dark"
   }
 }

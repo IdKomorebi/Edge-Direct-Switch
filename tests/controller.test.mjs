@@ -176,6 +176,19 @@ test('settings validate input and only change the proxy while rules are active',
   assert.match(f.proxy.value.pacScript.data, /SOCKS5 127\.0\.0\.1:10808"/);
 });
 
+test('appearance is validated and stored without touching the proxy', async () => {
+  const f = fixture();
+  const proxy = { scheme: 'http', host: '127.0.0.1', port: 7890 };
+  await f.controller.mutate({ type: 'settings', proxy, theme: 'dark' });
+  assert.equal(f.local.settings.theme, 'dark');
+  await assert.rejects(
+    f.controller.mutate({ type: 'settings', proxy, theme: 'neon' }),
+    /errUnsupported/,
+  );
+  assert.equal(f.local.settings.theme, 'dark');
+  assert.deepEqual(f.calls, []);
+});
+
 test('1.x state is migrated once and the old key removed', async () => {
   const f = fixture({
     local: {
@@ -193,6 +206,16 @@ test('1.x state is migrated once and the old key removed', async () => {
   assert.deepEqual(settings.sites, [{ domain: 'gmis.xjtu.edu.cn', subdomains: true }]);
   assert.equal(f.local.state, undefined);
   assert.equal(f.local.settings.proxy.port, 7892);
+});
+
+test('settings page "whole site" matches the popup', async () => {
+  const f = fixture();
+  await f.controller.mutate({
+    type: 'addSite',
+    rule: { domain: 'https://cpipc.acge.org.cn/x', subdomains: true },
+  });
+  assert.deepEqual(f.local.settings.sites, [{ domain: 'acge.org.cn', subdomains: true }]);
+  assert.equal((await f.controller.snapshot('static.acge.org.cn')).route.kind, 'saved');
 });
 
 test('removeSite and removeTemp', async () => {

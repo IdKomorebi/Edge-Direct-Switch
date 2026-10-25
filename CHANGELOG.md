@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.0 — 2026-10-25
+
+- **“Whole site” means the same everywhere.** The settings page used to extend a rule only below the typed host (`*.cpipc.acge.org.cn`), while the popup covered the whole site (`*.acge.org.cn`). Both now use the site, the exact scope is shown, and Settings previews what will be added. Shared-hosting suffixes such as `github.io` are recognized.
+- **Appearance setting:** System / Light / Dark. Light is now neutral grey with frosted surfaces (no colored backdrop); dark keeps a subtle glow.
+- **Switches can be dragged** as well as tapped, are larger, and only the switch reacts — clicking a label no longer toggles it.
+- Clearer status pill, settings and count buttons in the popup; larger corner radii.
+- Fix: a gap could appear at the popup edge; switches no longer animate when a page opens.
+
 ## 2.0.0 — 2026-10-25
 
 A redesign focused on a smaller footprint and a simpler popup.

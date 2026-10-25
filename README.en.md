@@ -11,11 +11,7 @@
   <a href="CHANGELOG.md">Changelog</a>
 </p>
 
-<p align="center">
-  <img src="docs/images/popup-en.png" width="300" alt="Popup: the current site uses the proxy">
-  &nbsp;
-  <img src="docs/images/popup-dark-en.png" width="300" alt="Popup in dark mode: the current site connects directly">
-</p>
+<p align="center"><img src="docs/images/flow-en.png" width="680" alt="The popup before and after “Connect directly”"></p>
 
 ## Why
 
@@ -40,9 +36,17 @@ Not yet on the Edge Add-ons store:
 | **Always connect directly**            | Adds the site to the **Saved sites** list.                                              |
 | **Saved sites** (top right)            | Master switch for the list. When off, the list is kept but ignored.                     |
 
-The UI follows Edge's language (English and Simplified Chinese).
+Switches can be tapped or dragged; only the switch itself reacts, not its label. The UI follows Edge's language (English and Simplified Chinese).
 
-<p align="center"><img src="docs/images/options-en.png" width="720" alt="Settings page"></p>
+**Whole site** means the registrable domain and everything under it: on `cpipc.acge.org.cn` it covers `acge.org.cn` and all its subdomains (`org.cn` is a public suffix, so it never goes higher). The popup and Settings use the same rule, and the exact scope is always shown. Common public suffixes such as `edu.cn`, `co.uk` and `github.io` are recognized.
+
+Settings also let you pick the look: **System / Light / Dark**.
+
+<p align="center">
+  <img src="docs/images/options-en.png" width="560" alt="Settings (light)">
+  &nbsp;
+  <img src="docs/images/popup-dark-en.png" width="230" alt="Popup (dark)">
+</p>
 
 ## How it works
 
@@ -54,6 +58,7 @@ Local network (optional)       → DIRECT
 Everything else                → your proxy port (DIRECT if it is unreachable; optional)
 ```
 
+- **Why a proxy port at all?** An extension can only replace Edge's proxy configuration as a whole; it cannot change one site and leave the rest untouched, and it cannot read the Windows system proxy. So while it is in control it must route every other site itself — to the port you enter. That is also why it takes control only while a direct rule is active.
 - **Resources:** the background worker only wakes for the popup, a tab close or browser start, then sleeps. Edge keeps and evaluates the rules itself.
 - **Scope:** only this Edge profile. Windows proxy settings and other apps are untouched. The extension **controls Edge's proxy only while at least one direct rule is active** and hands control back as soon as none are; disabling or removing it does the same.
 - **Proxy clients:** keep running as usual. While the extension is in control, other sites are sent to the fixed port in Settings, so it must be correct. Rules inside your client still apply to that traffic.
