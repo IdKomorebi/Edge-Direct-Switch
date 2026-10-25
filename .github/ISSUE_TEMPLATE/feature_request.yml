@@ -1,0 +1,16 @@
+name: Feature request / 功能建议
+description: Explain the use case and the behavior you would like.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do? / 你希望解决什么问题？
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Proposed behavior and alternatives / 期望行为与已有替代办法
+    validations:
+      required: true

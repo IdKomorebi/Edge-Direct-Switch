@@ -1,0 +1,362 @@
+:root {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  color: #173236;
+  background: #f3f7f6;
+  font-size: 14px;
+  line-height: 1.55;
+  color-scheme: light;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input,
+select {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+  border: 0;
+  border-radius: 9px;
+  padding: 10px 16px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #65bfad;
+  outline-offset: 2px;
+}
+[hidden] {
+  display: none !important;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand img {
+  width: 40px;
+  height: 40px;
+}
+.brand strong {
+  display: block;
+  font-size: 19px;
+  letter-spacing: 0.3px;
+}
+.brand span {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  color: #607c7b;
+}
+.brand .icon-button {
+  margin-left: auto;
+  background: transparent;
+  font-size: 22px;
+  color: #466966;
+  padding: 5px 9px;
+}
+.popup {
+  width: 400px;
+  background: white;
+}
+.popup header {
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid #e9efed;
+}
+.popup main {
+  padding: 18px 22px;
+}
+.site-card {
+  background: #f3f8f6;
+  border: 1px solid #dcebe6;
+  border-radius: 13px;
+  padding: 17px;
+  margin-bottom: 18px;
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  color: #587875;
+}
+.site-card h1 {
+  font-size: 20px;
+  overflow-wrap: anywhere;
+  margin: 4px 0 12px;
+  line-height: 1.4;
+}
+.pill {
+  display: inline-block;
+  background: #e2e9f1;
+  color: #39566d;
+  border-radius: 20px;
+  padding: 3px 11px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.pill.direct {
+  background: #d5eee4;
+  color: #086e57;
+}
+.muted {
+  color: #637e7b;
+  font-size: 13px;
+}
+.site-card p {
+  margin: 10px 0 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.primary {
+  background: #087f70;
+  color: white;
+}
+.primary:hover {
+  background: #076d60;
+}
+.secondary {
+  background: #eaf2ef;
+  color: #17564d;
+}
+.secondary:hover {
+  background: #dcebe5;
+}
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 12px;
+  color: #4d6a66;
+  font-weight: 400;
+}
+.check input {
+  accent-color: #087f70;
+  margin: 3px 0 0;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+.stack .check {
+  margin-top: 4px;
+}
+.notice {
+  font-size: 12px;
+  color: #617b76;
+  background: #f8faf9;
+  padding: 11px;
+  border-radius: 8px;
+  margin: 15px 0;
+}
+.proxy-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e4eeea;
+  padding-top: 12px;
+  gap: 8px;
+}
+.proxy-line > span {
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.text-button {
+  color: #087f70;
+  background: transparent;
+  padding: 4px 0;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.footnote {
+  font-size: 11px;
+  color: #6b807a;
+  line-height: 1.65;
+  margin: 9px 0 0;
+}
+.message {
+  background: #e0f2ea;
+  border: 1px solid #b4ddcb;
+  border-radius: 9px;
+  padding: 11px 13px;
+  margin-bottom: 15px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.message.error {
+  background: #fff1df;
+  color: #8b4b13;
+  border-color: #efd0a6;
+}
+.layout {
+  max-width: 900px;
+  margin: 38px auto;
+  padding: 0 24px;
+}
+.options header {
+  margin-bottom: 28px;
+}
+.options .brand strong {
+  font-size: 24px;
+}
+.options .brand span {
+  letter-spacing: 0.5px;
+  font-size: 12px;
+}
+.brand .version {
+  margin-left: auto;
+  font-size: 12px;
+  letter-spacing: 0;
+}
+.panel {
+  background: white;
+  border: 1px solid #e0e9e5;
+  border-radius: 15px;
+  padding: 25px 28px;
+  margin-bottom: 20px;
+}
+.status-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #e9f3ee;
+  gap: 20px;
+}
+.status-panel h1 {
+  font-size: 24px;
+  margin: 3px 0 5px;
+}
+.status-panel p {
+  margin: 0;
+}
+h2 {
+  font-size: 17px;
+  margin: 0 0 14px;
+}
+.panel > p.muted {
+  margin-top: -5px;
+}
+label:not(.check) {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4b6863;
+}
+input:not([type='checkbox']),
+select {
+  display: block;
+  width: 100%;
+  border: 1px solid #cfded7;
+  border-radius: 8px;
+  padding: 10px 11px;
+  background: #fbfdfc;
+  margin: 5px 0 14px;
+  color: #173236;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 2.3fr 1fr;
+  gap: 15px;
+}
+.options form > .secondary {
+  margin-top: 15px;
+}
+.form-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+.presets {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #edf1ef;
+}
+.chip {
+  background: #eef4f1;
+  color: #41695e;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 400;
+}
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rule-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #edf1ef;
+  padding: 13px 0;
+  gap: 20px;
+}
+.rule-row strong {
+  font-family: Consolas, 'Microsoft YaHei', monospace;
+  display: block;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.rule-row span {
+  display: block;
+  color: #72837d;
+  font-size: 12px;
+  margin-top: 3px;
+}
+.danger {
+  color: #a74a35;
+}
+.empty {
+  font-size: 13px;
+  color: #72837d;
+  margin: 5px 0;
+}
+.help p {
+  font-size: 12px;
+  color: #5e756e;
+  margin: 10px 0;
+}
+.options footer {
+  text-align: center;
+  font-size: 12px;
+  color: #7d8f87;
+  padding: 10px 0 35px;
+}
+@media (max-width: 600px) {
+  .layout {
+    margin: 20px auto;
+    padding: 0 14px;
+  }
+  .panel {
+    padding: 20px;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .status-panel,
+  .form-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .options .brand strong {
+    font-size: 20px;
+  }
+}

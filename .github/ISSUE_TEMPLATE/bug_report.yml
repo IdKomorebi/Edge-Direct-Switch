@@ -1,0 +1,32 @@
+name: Bug report / 问题反馈
+description: Report a reproducible routing, installation or UI problem.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Please remove credentials, cookies, private domains and sensitive logs before posting. 请勿填写代理密码、Cookie 或私人网络信息。
+  - type: input
+    id: environment
+    attributes:
+      label: Edge version and operating system / 浏览器版本和系统
+      placeholder: Edge 155, Windows 11
+    validations:
+      required: true
+  - type: dropdown
+    id: proxy_mode
+    attributes:
+      label: Proxy mode / 代理方式
+      options:
+        - System proxy / 系统代理
+        - TUN or VPN
+        - PAC or auto-detect
+        - Unknown / 不确定
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps, expected result and actual result / 复现步骤及预期与实际结果
+      description: Use example domains where possible; include the extension version and proxy protocol.
+    validations:
+      required: true

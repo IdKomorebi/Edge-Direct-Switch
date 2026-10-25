@@ -1,0 +1,23 @@
+{
+  "name": "edge-direct-switch",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Domain-based direct connection switch for Microsoft Edge",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "pack": "node scripts/pack.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:browser": "node scripts/browser-smoke.mjs",
+    "check": "node scripts/check-package.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "1.64.1",
+    "prettier": "3.9.10"
+  }
+}

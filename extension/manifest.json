@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "网站直连开关 · Edge Direct Switch",
+  "version": "1.0.0",
+  "description": "点击让当前网站临时或始终直连，其他网站继续使用指定代理。规则按域名生效。",
+  "minimum_chrome_version": "120",
+  "permissions": ["proxy", "storage", "activeTab", "alarms"],
+  "background": { "service_worker": "background.mjs", "type": "module" },
+  "action": { "default_popup": "popup.html", "default_title": "网站直连开关" },
+  "options_page": "options.html",
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "incognito": "not_allowed",
+  "content_security_policy": { "extension_pages": "script-src 'self'; object-src 'none'" }
+}
