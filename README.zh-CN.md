@@ -91,7 +91,7 @@ npm run pack
 
 ZIP 输出到 `dist/`，只包含扩展运行文件，`manifest.json` 在 ZIP 根目录。打包过程不包含测试数据、浏览器配置文件或 Git 历史。CI 在 push 和 PR 时运行测试并生成可下载的扩展包。
 
-可选浏览器测试：先在仓库外安装 Playwright 和 Edge，再运行 `node scripts/browser-smoke.mjs`。也可用环境变量 `PLAYWRIGHT_MODULE` 指定已有 Playwright 模块的绝对目录，`TEST_BROWSER=chromium` 选择 Playwright Chromium。脚本使用独立临时配置文件和本地测试代理，检查真实 DIRECT/PROXY 路由、临时规则和暂停恢复，不操作日常浏览器配置文件。
+可选浏览器测试：先安装 Edge，通过 `npm ci` 安装开发依赖，再运行 `npm run test:browser`。也可用环境变量 `PLAYWRIGHT_MODULE` 指定已有 Playwright 模块的绝对目录，`TEST_BROWSER=chromium` 选择已安装的 Playwright Chromium。脚本使用独立临时配置文件和本地测试代理，检查真实 DIRECT/PROXY 路由、临时规则和暂停恢复，不操作日常浏览器配置文件。
 
 `npm ci` 安装格式工具及浏览器测试驱动；扩展运行文件不包含这些依赖。2026-10-25 已在 **Windows + Edge 155.0.4283.45** 上通过真实路由测试，验证目标域名直连、其他域名代理、删除规则、临时规则标签页关闭清理及暂停恢复。没有测试所有外部网站、TUN/VPN 组合或真实 SOCKS5 服务。详见 [测试说明](docs/TESTING.md)。
 
