@@ -1,0 +1,223 @@
+{
+  "extName": {
+    "message": "Edge Direct Switch"
+  },
+  "extShort": {
+    "message": "Direct Switch"
+  },
+  "extDescription": {
+    "message": "Keep your proxy on and let the current website connect directly with one click."
+  },
+  "savedSites": {
+    "message": "Saved sites"
+  },
+  "statusProxy": {
+    "message": "Using proxy"
+  },
+  "statusTemporary": {
+    "message": "Direct · this time"
+  },
+  "statusSaved": {
+    "message": "Direct · saved"
+  },
+  "statusSavedOff": {
+    "message": "Saved, but Saved sites is off"
+  },
+  "statusPrivate": {
+    "message": "Local network · direct"
+  },
+  "unsupported": {
+    "message": "This page can’t be switched"
+  },
+  "unsupportedHint": {
+    "message": "Open a website (http/https) first"
+  },
+  "btnDirect": {
+    "message": "Connect directly"
+  },
+  "btnRestore": {
+    "message": "Use proxy again"
+  },
+  "hintProxy": {
+    "message": "Only this site bypasses the proxy"
+  },
+  "hintTemporary": {
+    "message": "The proxy comes back when you close this tab"
+  },
+  "hintSaved": {
+    "message": "This site always connects directly"
+  },
+  "hintPrivate": {
+    "message": "Local addresses always connect directly"
+  },
+  "optWide": {
+    "message": "Whole site: *.$ROOT$",
+    "placeholders": {
+      "root": {
+        "content": "$1"
+      }
+    }
+  },
+  "optSubdomains": {
+    "message": "Include *.$HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "optRemember": {
+    "message": "Always connect directly"
+  },
+  "rememberNeedsOn": {
+    "message": "Turn on Saved sites (top right) first"
+  },
+  "settings": {
+    "message": "Settings"
+  },
+  "siteCount": {
+    "message": "$COUNT$ saved",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "errInvalidDomain": {
+    "message": "Enter a valid domain or URL (no wildcards)."
+  },
+  "errProxyScheme": {
+    "message": "The protocol must be HTTP, HTTPS or SOCKS5."
+  },
+  "errProxyHost": {
+    "message": "Enter only a host name or IP, without protocol or port."
+  },
+  "errProxyPort": {
+    "message": "The port must be a whole number from 1 to 65535."
+  },
+  "errOtherExtension": {
+    "message": "Another extension (e.g. ZeroOmega) controls the proxy. Disable it first."
+  },
+  "errPolicy": {
+    "message": "The proxy is locked by an organization policy."
+  },
+  "errNotApplied": {
+    "message": "Direct rules are not applied yet. Reopen this window."
+  },
+  "errTab": {
+    "message": "The current tab could not be found."
+  },
+  "errTooMany": {
+    "message": "You can save up to 500 sites."
+  },
+  "errUnsupported": {
+    "message": "Unsupported action."
+  },
+  "errNoResponse": {
+    "message": "The extension did not respond. Reload it on the extensions page."
+  },
+  "reloadFailed": {
+    "message": "Updated. Please reload the page."
+  },
+  "optionsTitle": {
+    "message": "Settings · Edge Direct Switch"
+  },
+  "secProxy": {
+    "message": "Proxy"
+  },
+  "secProxyDesc": {
+    "message": "The local address of your proxy app (Clash, v2rayN …). Sites that are not direct use it."
+  },
+  "fieldScheme": {
+    "message": "Protocol"
+  },
+  "fieldHost": {
+    "message": "Host"
+  },
+  "fieldPort": {
+    "message": "Port"
+  },
+  "btnSave": {
+    "message": "Save"
+  },
+  "presets": {
+    "message": "Common ports"
+  },
+  "msgSaved": {
+    "message": "Saved."
+  },
+  "optFallback": {
+    "message": "Go direct if the proxy is unreachable"
+  },
+  "optFallbackDesc": {
+    "message": "Keeps Edge usable when your proxy app is not running."
+  },
+  "optPrivate": {
+    "message": "Bypass the local network"
+  },
+  "optPrivateDesc": {
+    "message": "localhost, private IPs and single-label host names."
+  },
+  "optReload": {
+    "message": "Reload the page after switching"
+  },
+  "optReloadDesc": {
+    "message": "Turn off if you switch while filling in forms."
+  },
+  "secSavedDesc": {
+    "message": "While on, these sites always connect directly. While off, the list is kept but ignored and only “this time” switching works."
+  },
+  "fieldDomain": {
+    "message": "Domain or URL"
+  },
+  "domainPlaceholder": {
+    "message": "e.g. portal.example.edu"
+  },
+  "optAddSubdomains": {
+    "message": "Include subdomains"
+  },
+  "btnAdd": {
+    "message": "Add"
+  },
+  "emptySaved": {
+    "message": "No saved sites yet. On a website, open the popup and turn on “Always connect directly”."
+  },
+  "scopeExact": {
+    "message": "This domain only"
+  },
+  "scopeWide": {
+    "message": "Including subdomains"
+  },
+  "btnRemove": {
+    "message": "Remove"
+  },
+  "ariaRemove": {
+    "message": "Remove $DOMAIN$",
+    "placeholders": {
+      "domain": {
+        "content": "$1"
+      }
+    }
+  },
+  "secTemps": {
+    "message": "Direct this time"
+  },
+  "secTempsDesc": {
+    "message": "Each ends when the tab that started it closes, or when Edge restarts."
+  },
+  "secHow": {
+    "message": "How it works"
+  },
+  "how1": {
+    "message": "The extension gives Edge a small local PAC script: listed sites go DIRECT, everything else goes to the proxy above. Only this Edge profile is affected — Windows proxy settings and other apps are not touched."
+  },
+  "how2": {
+    "message": "With no direct rules active, the extension hands proxy control back and Edge follows the system proxy as usual. The background worker sleeps when idle; nothing stays resident."
+  },
+  "how3": {
+    "message": "Rules work per domain, so other tabs of the same site connect directly too. If your proxy app runs in TUN / virtual adapter mode, browser DIRECT cannot bypass it — add a DIRECT rule in the proxy app instead."
+  },
+  "how4": {
+    "message": "Logins and videos are sometimes served from other domains. If only part of a page fails, include the whole site or add those domains here."
+  }
+}

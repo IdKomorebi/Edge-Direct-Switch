@@ -1,11 +1,10 @@
-# 隐私说明
+# 隐私说明 / Privacy
 
-本扩展没有服务端、账户系统、遥测、广告或云同步。
+本扩展没有服务器、账户、统计、广告或云同步，自身不发出任何网络请求。
 
-用户点击工具栏扩展时，`activeTab` 权限用于取得当前网站域名。只保存用户主动添加的域名规则和代理设置，不保存页面正文、完整浏览历史、表单内容、密码、Cookie 或页面访问日志。
+- 点击扩展图标时，通过 `activeTab` 读取**当前网站的域名**，用于判断和切换直连。不读取网页内容、表单、密码、Cookie 或浏览历史。
+- **常驻网站列表和设置**保存在本机（`chrome.storage.local`）。**单次直连**及其所属标签页编号保存在浏览器会话存储中，重启浏览器即清除。
+- 未直连的网页请求会按你的设置发往你自己的代理软件；这部分流量由你的代理软件及其服务商处理。
+- 卸载扩展时，浏览器会删除上述数据并交还代理设置。
 
-临时规则额外保存到期时间、创建它的标签页编号和一个本地随机会话标识，用于在标签页关闭、到期或浏览器会话变更后清理。扩展运行时只在本地处理这些数据，不向开发者或第三方上传。
-
-启用后，未匹配直连规则的浏览器网络请求会发送至用户配置的代理端点。这是代理功能本身，由用户自己的代理客户端及其提供者处理；本扩展不提供代理服务。直连流量仍受操作系统、VPN/TUN、DNS 和网络环境影响。
-
-暂停扩展会保留本地规则。卸载扩展会由浏览器删除扩展存储，并释放其代理设置。开源仓库的 GitHub 平台自身有独立隐私政策。
+The extension has no server, analytics or sync and makes no network requests of its own. It reads the current site's host name only when you open the popup, stores settings and saved sites locally, and keeps one-time rules in session storage that is cleared when Edge restarts. Uninstalling removes all data and releases the proxy setting.

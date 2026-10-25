@@ -1,26 +1,29 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Controller } from '../extension/controller.mjs';
-import { TEMP_MS, MAX_RULES } from '../extension/core.mjs';
 
-function fixture() {
-  const local = {},
+function fixture({ level = 'controllable_by_this_extension', local: initial = {} } = {}) {
+  const local = structuredClone(initial),
     session = {},
-    calls = [],
-    alarms = new Map();
-  let failure = false;
-  const proxy = { levelOfControl: 'controllable_by_this_extension', value: { mode: 'system' } };
-  const area = (data) => ({
-    async get(key) {
-      return { [key]: structuredClone(data[key]) };
+    calls = [];
+  let failLocal = false;
+  const proxy = { levelOfControl: level, value: { mode: 'system' } };
+  const area = (data, isLocal) => ({
+    async get(keys) {
+      const out = {};
+      for (const key of [keys].flat()) if (key in data) out[key] = structuredClone(data[key]);
+      return out;
     },
     async set(values) {
-      if (data === local && failure) throw new Error('storage failed');
+      if (isLocal && failLocal) throw new Error('storage failed');
       Object.assign(data, structuredClone(values));
+    },
+    async remove(key) {
+      delete data[key];
     },
   });
   const api = {
-    storage: { local: area(local), session: area(session) },
+    storage: { local: area(local, true), session: area(session, false) },
     proxy: {
       settings: {
         async get() {
@@ -38,130 +41,170 @@ function fixture() {
         },
       },
     },
-    alarms: {
-      async clear(name) {
-        alarms.delete(name);
-      },
-      async create(name, value) {
-        alarms.set(name, value);
-      },
-    },
     tabs: {
       async get(id) {
-        if (id === 999) throw new Error('No tab');
+        if (id === 999) throw new Error('No tab with id: 999');
         return { id };
       },
     },
   };
-  let now = 1000;
   return {
-    controller: new Controller(api, () => now),
+    controller: new Controller(api),
     local,
     session,
-    proxy,
     calls,
-    alarms,
-    setNow(n) {
-      now = n;
-    },
-    failStorage() {
-      failure = true;
-    },
+    proxy,
+    failLocal: (v) => (failLocal = v),
   };
 }
-const add = {
-  type: 'add',
-  lifetime: 'permanent',
-  rule: { domain: 'gmis.xjtu.edu.cn', includeSubdomains: false },
-};
-test('install defaults to system, adding a rule enables PAC, pause releases control and retains rules', async () => {
+
+const page = (host, extra) => ({ type: 'setPage', host, tabId: 7, direct: true, ...extra });
+
+test('installing does not touch the proxy', async () => {
   const f = fixture();
   await f.controller.reconcile();
-  assert.equal(f.local.state.enabled, false);
-  await f.controller.mutate(add);
-  let snap = await f.controller.snapshot('gmis.xjtu.edu.cn');
-  assert.equal(snap.effective, true);
-  assert.equal(snap.route.kind, 'permanent');
-  assert.equal(f.proxy.value.pacScript.mandatory, true);
-  assert.equal((await f.controller.snapshot('claude.ai')).route.kind, 'proxy');
-  await f.controller.mutate({ type: 'enable', enabled: false });
-  assert.equal(f.proxy.value.mode, 'system');
-  assert.equal(f.local.state.permanent.length, 1);
+  assert.deepEqual(f.calls, []);
+  assert.equal(f.proxy.levelOfControl, 'controllable_by_this_extension');
 });
-test('temporary rules disappear on source tab close, expiry and browser restart', async () => {
+
+test('one-time direct takes control; closing its tab releases control', async () => {
   const f = fixture();
-  const temp = { ...add, lifetime: 'temporary', tabId: 1 };
-  await f.controller.mutate(temp);
-  assert.equal(f.local.state.temporary.length, 1);
-  assert.ok(f.alarms.has('expire-direct-rules'));
-  await f.controller.mutate({ type: 'tabClosed', tabId: 1 });
-  assert.equal(f.local.state.temporary.length, 0);
-  await f.controller.mutate(temp);
-  f.setNow(1000 + TEMP_MS);
-  await f.controller.mutate({ type: 'expire' });
-  assert.equal(f.local.state.temporary.length, 0);
-  await f.controller.mutate(temp);
-  delete f.session.token;
-  await f.controller.reconcile();
-  assert.equal(f.local.state.temporary.length, 0);
-  assert.equal((await f.controller.snapshot('gmis.xjtu.edu.cn')).route.kind, 'proxy');
+  await f.controller.mutate(page('gmis.xjtu.edu.cn'));
+  assert.equal(f.proxy.levelOfControl, 'controlled_by_this_extension');
+  assert.deepEqual(f.session.temps, [{ domain: 'gmis.xjtu.edu.cn', subdomains: false, tabId: 7 }]);
+  const snap = await f.controller.snapshot('https://gmis.xjtu.edu.cn/pyxx/');
+  assert.equal(snap.route.kind, 'temporary');
+  assert.equal(snap.conflict, null);
+
+  await f.controller.mutate({ type: 'tabClosed', tabId: 8 }); // unrelated tab: no work
+  assert.deepEqual(f.calls, ['set']);
+  await f.controller.mutate({ type: 'tabClosed', tabId: 7 });
+  assert.deepEqual(f.calls, ['set', 'clear']);
+  assert.equal(f.proxy.levelOfControl, 'controllable_by_this_extension');
 });
-test('rules survive worker restart within a browser session; promoting to permanent removes matching temporary rule', async () => {
+
+test('"whole site" uses the registrable domain with subdomains', async () => {
   const f = fixture();
-  await f.controller.mutate({ ...add, lifetime: 'temporary', tabId: 1 });
-  const token = f.session.token;
-  await f.controller.reconcile();
-  assert.equal(f.session.token, token);
-  assert.equal(f.local.state.temporary.length, 1);
-  await f.controller.mutate(add);
-  await f.controller.mutate(add);
-  assert.equal(f.local.state.permanent.length, 1);
-  assert.equal(f.local.state.temporary.length, 0);
+  await f.controller.mutate(page('cpipc.acge.org.cn', { wide: true }));
+  assert.deepEqual(f.session.temps[0], { domain: 'acge.org.cn', subdomains: true, tabId: 7 });
 });
-test('refuse other extensions or enterprise policy; do not overwrite settings on startup', async () => {
-  for (const level of ['controlled_by_other_extensions', 'not_controllable']) {
-    const f = fixture();
-    await f.controller.mutate(add);
-    f.calls.length = 0;
-    f.proxy.levelOfControl = level;
-    await assert.rejects(f.controller.mutate(add));
-    assert.equal(f.calls.length, 0);
-    await f.controller.reconcile();
-    assert.equal(f.calls.length, 0);
-    assert.equal((await f.controller.snapshot()).effective, false);
+
+test('remember saves the site; turning remember off keeps it direct for this tab', async () => {
+  const f = fixture();
+  await f.controller.mutate(page('gmis.xjtu.edu.cn', { remember: true }));
+  assert.deepEqual(f.local.settings.sites, [{ domain: 'gmis.xjtu.edu.cn', subdomains: false }]);
+  assert.deepEqual(f.session.temps, []);
+  await f.controller.mutate(page('gmis.xjtu.edu.cn', { remember: false }));
+  assert.deepEqual(f.local.settings.sites, []);
+  assert.equal(f.session.temps.length, 1);
+  await f.controller.mutate(page('gmis.xjtu.edu.cn', { direct: false }));
+  assert.deepEqual(f.session.temps, []);
+  assert.equal(f.proxy.levelOfControl, 'controllable_by_this_extension');
+});
+
+test('master switch off: saved sites stop applying and stay untouched by page actions', async () => {
+  const f = fixture();
+  await f.controller.mutate({ type: 'addSite', rule: { domain: 'saved.example' } });
+  assert.equal(f.proxy.levelOfControl, 'controlled_by_this_extension');
+  await f.controller.mutate({ type: 'alwaysOn', value: false });
+  assert.equal(f.proxy.levelOfControl, 'controllable_by_this_extension'); // nothing active
+  assert.equal((await f.controller.snapshot('saved.example')).route.kind, 'savedOff');
+
+  // One-time direct still works and must not delete the saved entry.
+  await f.controller.mutate(page('saved.example', { remember: true }));
+  assert.deepEqual(f.local.settings.sites, [{ domain: 'saved.example', subdomains: false }]);
+  assert.equal(f.session.temps.length, 1);
+  await f.controller.mutate(page('saved.example', { direct: false }));
+  assert.deepEqual(f.local.settings.sites, [{ domain: 'saved.example', subdomains: false }]);
+});
+
+test('identical PAC is not re-applied', async () => {
+  const f = fixture();
+  await f.controller.mutate(page('a.example'));
+  await f.controller.reconcile();
+  await f.controller.mutate({ type: 'alwaysOn', value: true });
+  assert.deepEqual(f.calls, ['set']);
+});
+
+test('a temporary rule needs a live tab', async () => {
+  const f = fixture();
+  await assert.rejects(f.controller.mutate(page('a.example', { tabId: 999 })), /No tab/);
+  await assert.rejects(f.controller.mutate(page('a.example', { tabId: undefined })), /errTab/);
+  assert.deepEqual(f.calls, []);
+});
+
+test('never fights another extension or policy', async () => {
+  for (const [level, error] of [
+    ['controlled_by_other_extensions', /errOtherExtension/],
+    ['not_controllable', /errPolicy/],
+  ]) {
+    const f = fixture({ level });
+    await assert.rejects(f.controller.mutate(page('a.example')), error);
+    assert.deepEqual(f.calls, []);
+    assert.equal(f.session.temps, undefined);
+    // Startup with saved sites while another extension owns the proxy: stay quiet.
+    const g = fixture({
+      level,
+      local: { settings: { version: 2, sites: [{ domain: 'a.example', subdomains: false }] } },
+    });
+    await g.controller.reconcile();
+    assert.deepEqual(g.calls, []);
+    assert.match((await g.controller.snapshot()).conflict, error);
   }
 });
-test('storage failure restores previously effective proxy settings', async () => {
+
+test('storage failure rolls the proxy setting back', async () => {
   const f = fixture();
-  await f.controller.mutate(add);
-  const previous = structuredClone(f.proxy.value);
-  f.failStorage();
-  await assert.rejects(f.controller.mutate({ ...add, rule: { domain: 'another.test' } }));
-  assert.deepEqual(f.proxy.value, previous);
-  assert.equal(f.local.state.permanent.length, 1);
+  f.failLocal(true);
+  await assert.rejects(f.controller.mutate(page('a.example')), /storage failed/);
+  assert.deepEqual(f.calls, ['set', 'clear']);
+  assert.equal(f.proxy.levelOfControl, 'controllable_by_this_extension');
 });
-test('invalid settings and invalid tab cannot change browser proxy', async () => {
+
+test('settings validate input and only change the proxy while rules are active', async () => {
   const f = fixture();
+  const proxy = { scheme: 'socks5', host: '127.0.0.1', port: 10808 };
+  await f.controller.mutate({ type: 'settings', proxy, fallbackDirect: false });
+  assert.deepEqual(f.calls, []);
+  assert.deepEqual(f.local.settings.proxy, proxy);
+  assert.equal(f.local.settings.fallbackDirect, false);
   await assert.rejects(
-    f.controller.mutate({
-      type: 'settings',
-      proxy: { scheme: 'http', host: 'bad;host', port: 80 },
-    }),
+    f.controller.mutate({ type: 'settings', proxy: { ...proxy, port: 0 } }),
+    /errProxyPort/,
   );
-  await assert.rejects(f.controller.mutate({ ...add, lifetime: 'temporary', tabId: 999 }));
-  assert.equal(f.calls.length, 0);
+  await f.controller.mutate(page('a.example'));
+  assert.match(f.proxy.value.pacScript.data, /SOCKS5 127\.0\.0\.1:10808"/);
 });
-test('updating a rule at the limit succeeds; a new rule over the limit has no side effects', async () => {
+
+test('1.x state is migrated once and the old key removed', async () => {
+  const f = fixture({
+    local: {
+      state: {
+        version: 1,
+        enabled: true,
+        proxy: { scheme: 'http', host: '127.0.0.1', port: 7892 },
+        bypassPrivate: true,
+        permanent: [{ domain: 'gmis.xjtu.edu.cn', includeSubdomains: true }],
+        temporary: [],
+      },
+    },
+  });
+  const { settings } = await f.controller.load();
+  assert.deepEqual(settings.sites, [{ domain: 'gmis.xjtu.edu.cn', subdomains: true }]);
+  assert.equal(f.local.state, undefined);
+  assert.equal(f.local.settings.proxy.port, 7892);
+});
+
+test('removeSite and removeTemp', async () => {
   const f = fixture();
-  await f.controller.mutate(add);
-  f.local.state.permanent = Array.from({ length: MAX_RULES }, (_, i) => ({
-    domain: `site${i}.example`,
-    includeSubdomains: false,
-  }));
-  await f.controller.mutate({ ...add, rule: { domain: 'site0.example' } });
-  assert.equal(f.local.state.permanent.length, MAX_RULES);
-  const callsBefore = f.calls.length;
-  await assert.rejects(f.controller.mutate({ ...add, rule: { domain: 'overflow.example' } }));
-  assert.equal(f.calls.length, callsBefore);
-  assert.equal(f.local.state.permanent.length, MAX_RULES);
+  await f.controller.mutate({ type: 'addSite', rule: { domain: 'a.example', subdomains: true } });
+  await f.controller.mutate(page('b.example'));
+  await f.controller.mutate({
+    type: 'removeSite',
+    rule: { domain: 'a.example', subdomains: true },
+  });
+  await f.controller.mutate({ type: 'removeTemp', rule: { domain: 'b.example' } });
+  assert.deepEqual(f.local.settings.sites, []);
+  assert.deepEqual(f.session.temps, []);
+  assert.equal(f.proxy.levelOfControl, 'controllable_by_this_extension');
 });

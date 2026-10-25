@@ -1,122 +1,109 @@
-<p align="center"><img src="extension/icons/128.png" width="80" alt="Edge Direct Switch icon"></p>
+<p align="center"><img src="extension/icons/128.png" width="72" alt=""></p>
 
-# Edge Direct Switch
+<h1 align="center">网站直连开关 · Edge Direct Switch</h1>
 
-**Keep your proxy on. Connect selected websites directly.**
+<p align="center">代理一直开着，某个网站打不开时，点一下让它单独直连。</p>
 
-让指定网站直连，其他网站继续使用代理。
+<p align="center">
+  <a href="https://github.com/IdKomorebi/Edge-Direct-Switch/releases/latest">下载</a> ·
+  <a href="README.en.md">English</a> ·
+  <a href="docs/TROUBLESHOOTING.md">常见问题</a> ·
+  <a href="CHANGELOG.md">更新记录</a>
+</p>
 
-[简体中文](README.zh-CN.md) · [Download](https://github.com/IdKomorebi/Edge-Direct-Switch/releases/latest) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Contributing](CONTRIBUTING.md)
+<p align="center">
+  <a href="https://github.com/IdKomorebi/Edge-Direct-Switch/actions/workflows/test.yml"><img src="https://github.com/IdKomorebi/Edge-Direct-Switch/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
+  <a href="https://github.com/IdKomorebi/Edge-Direct-Switch/releases"><img src="https://img.shields.io/github/v/release/IdKomorebi/Edge-Direct-Switch" alt="Release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-5b5bd6" alt="MIT"></a>
+</p>
 
-[![Tests](https://github.com/IdKomorebi/Edge-Direct-Switch/actions/workflows/test.yml/badge.svg)](https://github.com/IdKomorebi/Edge-Direct-Switch/actions/workflows/test.yml)
-[![Release](https://img.shields.io/github/v/release/IdKomorebi/Edge-Direct-Switch)](https://github.com/IdKomorebi/Edge-Direct-Switch/releases)
-[![License: MIT](https://img.shields.io/badge/License-MIT-087f70.svg)](LICENSE)
+<p align="center">
+  <img src="docs/images/popup-zh-CN.png" width="300" alt="弹窗：当前网站走代理">
+  &nbsp;
+  <img src="docs/images/popup-direct-zh-CN.png" width="300" alt="弹窗：当前网站已直连">
+</p>
 
-A small Manifest V3 extension for desktop Microsoft Edge. Add temporary or permanent **domain-based DIRECT rules** from the toolbar while every other website uses your configured HTTP, HTTPS or SOCKS5 proxy endpoint.
+## 适合谁
 
-Useful when you keep a local proxy client running but occasionally need to access a campus portal, workplace system, regional streaming service or another site through your normal network connection.
+为了访问海外服务，代理基本全天开着；但学校/单位系统、政府网站、部分有版权地区限制的视频网站，开着代理反而打不开。每次去代理软件里切换模式或加规则太麻烦——这个扩展让你在浏览器里点一下就解决。
 
-> Rules affect all matching domains in the Edge profile, including other tabs. This is **not per-tab isolation**. Browser DIRECT does not override a system-level VPN or TUN route.
+## 安装
 
-## Features
+尚未上架 Edge 扩展商店，需要手动加载：
 
-- Temporary direct connection: expires after 30 minutes or when its source tab closes.
-- Permanent rules: exact host matching, with optional subdomains.
-- Pause and resume: release Edge proxy control without deleting rules.
-- Optional local-network bypass for private IP literals, localhost and single-label hosts.
-- Local-only settings: no telemetry, remote scripts, cloud sync or page-content access.
-- No runtime npm dependencies. The current interface is in **Simplified Chinese**; English UI translation contributions are welcome.
+1. 从 [Releases](https://github.com/IdKomorebi/Edge-Direct-Switch/releases/latest) 下载 `edge-direct-switch-x.y.z.zip`，解压到一个**不会删除**的文件夹。
+2. 打开 `edge://extensions`，开启左侧「开发人员模式」。
+3. 点「加载解压缩的扩展」，选择解压后包含 `manifest.json` 的文件夹。
+4. 在工具栏「扩展」菜单里把它固定出来。
+5. 打开扩展设置，确认**代理端口**和你的代理软件一致（默认 `HTTP 127.0.0.1:7890`，页面上有 Clash / Clash Verge / v2rayN 的常用端口可一键填入）。
 
-## Install in Edge
+> 从源码安装时，选择仓库里的 `extension/` 文件夹即可。
 
-The extension is distributed through GitHub, **not the Edge Add-ons store**.
+## 使用
 
-1. Download `edge-direct-switch-1.0.0.zip` from the [latest release](https://github.com/IdKomorebi/Edge-Direct-Switch/releases/latest).
-2. Extract it into a directory you will keep. Do not load the ZIP directly.
-3. Open `edge://extensions` in Microsoft Edge and enable **Developer mode**.
-4. Click **Load unpacked** and select the extracted directory containing `manifest.json`.
-5. Pin the extension from the Extensions menu, open its settings and verify the proxy endpoint.
+在打不开的网站上点击扩展图标：
 
-If you download the repository source ZIP instead, select its **`extension/` subdirectory**.
+| 控件                       | 作用                                                                     |
+| -------------------------- | ------------------------------------------------------------------------ |
+| **本页直连 / 恢复代理**    | 当前网站改为直连并自动刷新。关闭这个标签页或重启浏览器后自动恢复代理。   |
+| **包含整个 xjtu.edu.cn**   | 连同同一站点的其他子域名一起直连，适合登录页、资源在别的子域名上的网站。 |
+| **始终直连此网站**         | 把网站加入「常驻直连」列表，以后打开就是直连。                           |
+| **常驻直连**（右上角开关） | 整个常驻列表的总开关。关闭后列表保留但不生效，只能单次直连。             |
 
-The default endpoint, **HTTP `127.0.0.1:7892`**, is an example. Change it to the address and port exposed by your proxy client. Installation starts with routing disabled; adding your first rule or choosing Enable routing activates it.
+设置页可以手动添加/删除常驻网站，查看当前的单次直连，修改代理端口等。
 
-## Use it
+<p align="center"><img src="docs/images/options-zh-CN.png" width="720" alt="设置页"></p>
 
-1. Open the website you want to connect to directly and click the extension icon.
-2. Choose **临时直连 30 分钟** (temporary) or **始终直连此网站** (permanent).
-3. Optionally include subdomains. A rule for `portal.example.edu` does not automatically include `example.edu`.
-4. Refresh the affected page. Automatic refresh is selected by default; turn it off if you have unsaved form data.
+## 工作原理与影响范围
 
-Use **删除此直连规则** to remove the matching rule, or **暂停分流** to pause routing. The settings page lists every rule and allows manual additions.
-
-![The settings page with example rules](docs/images/settings.png)
-
-_Actual Edge settings UI with example rules. Routing tests use local marker servers; the screenshot does not establish that these external sites are reachable._
-
-## How routing works
+扩展通过 Edge 的 [proxy API](https://developer.chrome.com/docs/extensions/reference/api/proxy) 写入一段本地 PAC 规则：
 
 ```text
-Matching explicit domain rule       → DIRECT
-Optional local-network bypass       → DIRECT
-All other URLs                      → Your configured proxy endpoint
+在直连列表中的网站      → DIRECT
+局域网地址（可关闭）    → DIRECT
+其他网站                → 你的代理端口（代理软件没开时自动直连，可关闭）
 ```
 
-The extension installs a self-contained local PAC script in the current Edge profile. It does not modify Windows proxy settings or other apps. Pausing releases its setting and restores the next applicable configuration, usually the system proxy.
+关心的几个问题：
 
-While enabled, the extension uses a **fixed proxy endpoint**, not a live copy of the system PAC or automatic-detection settings. Update the extension if your client changes ports. Rules inside your proxy client can still operate on traffic sent to that endpoint.
+- **会一直占内存吗？** 不会。扩展只有在你点开弹窗、关闭标签页、浏览器启动时才被唤醒，空闲约 30 秒后自动休眠。规则由 Edge 自己保存和执行，判断一次只是几行字符串比较。
+- **会破坏全局代理吗？** 不会。只影响当前 Edge 配置文件，不修改 Windows 系统代理，其他软件不受影响。并且**只有存在生效的直连网站时才接管 Edge 的代理**；全部恢复后会立即交还控制权，Edge 回到跟随系统代理。禁用或卸载扩展也会自动交还。
+- **和代理软件冲突吗？** 不冲突，代理软件照常运行。接管期间，非直连网站会发往设置里填写的固定端口——所以**端口要填对**；代理软件里原有的分流规则仍然对这些流量生效。
+- **和其他代理扩展冲突吗？** 浏览器同一时间只允许一个扩展控制代理。如果 ZeroOmega 等扩展正在控制，本扩展会提示冲突，不会和它抢。
 
-## Limits to understand
+## 已知限制
 
-| Situation                                        | What to expect                                                                                     |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| Two tabs use the same domain                     | Both share the routing rule. The source tab only determines temporary-rule cleanup.                |
-| One HTTPS path should be direct                  | HTTPS paths are normally stripped before PAC evaluation; path-specific matching is not supported.  |
-| TUN, VPN or transparent routing is enabled       | DIRECT only skips the explicit browser proxy. Add a DIRECT rule in the client if needed.           |
-| Login, CAPTCHA, API or video uses another domain | Add the required domain separately after checking the failed request.                              |
-| Another extension or policy controls the proxy   | A conflict is shown. The extension does not repeatedly fight for control.                          |
-| InPrivate                                        | No independent InPrivate support; the browser may inherit regular-window proxy settings.           |
-| Proxy endpoint is unavailable                    | Unlisted sites fail instead of silently falling back to DIRECT. Pause routing or fix the endpoint. |
+- **按域名生效**，不是按标签页：同一网站的其他标签页也会直连。网页的具体路径（如 `/pyxx/`）无法单独匹配。
+- **TUN / 虚拟网卡模式**下，浏览器直连无法绕过代理软件，需要在代理软件里给该域名加直连规则。
+- 网页的登录、视频等资源可能来自其他域名。只有部分内容加载失败时，打开「包含整个站点」或在设置页手动添加相关域名。
+- 不支持 InPrivate 窗口单独控制。
 
-Existing requests and long-lived connections are not cancelled when rules change. Browser sleep can delay temporary-rule cleanup. Internal campus systems may require a campus network or institutional VPN.
+更多排查方法见 [常见问题](docs/TROUBLESHOOTING.md)。
 
-See [troubleshooting](docs/TROUBLESHOOTING.md) for practical checks.
+## 权限与隐私
 
-## Permissions and privacy
+| 权限        | 用途                             |
+| ----------- | -------------------------------- |
+| `proxy`     | 设置和交还 Edge 的代理配置       |
+| `activeTab` | 点击扩展图标时读取当前网站的域名 |
+| `storage`   | 在本机保存设置和常驻网站列表     |
 
-| Permission  | Purpose                                                    |
-| ----------- | ---------------------------------------------------------- |
-| `proxy`     | Set and release browser proxy routing                      |
-| `activeTab` | Read the current website URL when you invoke the extension |
-| `storage`   | Keep explicitly added rules and settings locally           |
-| `alarms`    | Schedule temporary-rule cleanup                            |
+不读取网页内容，没有内容脚本，不联网、不统计、不同步。详见 [PRIVACY.md](PRIVACY.md)。
 
-No `<all_urls>`, `tabs` or `webRequest` permission; no content scripts. The extension does not read page contents, forms, passwords, cookies or browsing history. Your chosen proxy endpoint still handles proxied traffic as usual. See [PRIVACY.md](PRIVACY.md).
+## 开发
 
-## Development and testing
-
-Node.js **20+**:
+需要 Node.js 20+：
 
 ```sh
 npm ci
-npm test
-npm run format:check
-npm run test:browser  # requires Microsoft Edge
-npm run pack
+npm test               # 单元测试
+npm run check          # 打包结构、权限、中英文文案完整性
+npm run test:browser   # 真实 Edge 路由测试（需安装 Edge），同时生成文档截图
+npm run pack           # 打包到 dist/
 ```
 
-Unit tests and packaging use Node.js built-ins and also work without installing development dependencies. ZIPs in `dist/` contain only extension files, with `manifest.json` at the root.
-
-The browser test uses an isolated profile and local marker target/proxy servers. It verifies DIRECT/PROXY routing, removal, source-tab cleanup and pause behavior. **Windows + Edge 155.0.4283.45** passed on 2026-10-25. External example sites, every VPN configuration and real SOCKS5 services were not tested. See [testing details](docs/TESTING.md).
-
-## Alternatives and references
-
-For a full proxy-profile manager, consider [ZeroOmega](https://github.com/zero-peak/ZeroOmega). For system-wide or TUN routing, prefer your proxy client's domain rules. Edge Direct Switch is an independent implementation, not a fork of ZeroOmega.
-
-Technical references: [Edge APIs](https://learn.microsoft.com/en-us/microsoft-edge/extensions/developer-guide/api-support), [proxy API](https://developer.chrome.com/docs/extensions/reference/api/proxy), [Chromium PAC behavior](https://chromium.googlesource.com/chromium/src/+/HEAD/net/docs/proxy.md), [setting precedence and lifecycle](https://developer.chrome.com/docs/extensions/reference/api/types).
-
-Bug reports, translations and focused pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md) and the [changelog](CHANGELOG.md).
+浏览器测试使用独立的临时配置文件和本机测试服务器，不访问外部网站，也不影响你日常使用的 Edge。详见 [docs/TESTING.md](docs/TESTING.md)。欢迎提 Issue 和 PR，请先阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## License
 
-[MIT](LICENSE) · Maintained by [IdKomorebi](https://github.com/IdKomorebi)
+[MIT](LICENSE) © [IdKomorebi](https://github.com/IdKomorebi)

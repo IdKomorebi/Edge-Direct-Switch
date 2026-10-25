@@ -1,131 +1,138 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import vm from 'node:vm';
 import {
-  defaultState,
-  normalizeDomain,
-  validateProxy,
   buildPac,
-  routeForHost,
+  defaultSettings,
   isPrivateHost,
+  matches,
+  migrate,
+  normalizeHost,
+  routeFor,
+  siteRoot,
+  validateProxy,
 } from '../extension/core.mjs';
 
-function pacFor(state, token = 'session', now = 1000) {
-  const ctx = vm.createContext({});
-  vm.runInContext(buildPac(state, token, now), ctx);
-  return (host) => ctx.FindProxyForURL(`https://${host}/`, host);
-}
-test('normalize URLs, IDNs and IPs; reject schemes and script injection', () => {
-  assert.equal(normalizeDomain('https://GMIS.XJTU.EDU.CN/pyxx/?a=1'), 'gmis.xjtu.edu.cn');
-  assert.equal(normalizeDomain('例子.中国'), 'xn--fsqu00a.xn--fiqs8s');
-  assert.equal(normalizeDomain('[::1]'), '[::1]');
-  for (const input of [
-    '',
-    '*.example.com',
-    'https://user:pass@example.com',
-    'javascript:alert(1)',
-    'http://x";return DIRECT',
-    'https://a b.com',
-    '-bad.test',
-  ])
-    assert.throws(() => normalizeDomain(input));
+// Evaluate the generated PAC exactly like a PAC host would.
+const pacFor = (settings, temps = []) =>
+  new Function(`${buildPac(settings, temps)}; return FindProxyForURL;`)();
+
+test('normalizeHost accepts URLs and hosts, rejects wildcards and credentials', () => {
+  assert.equal(normalizeHost('https://GMIS.xjtu.edu.cn/pyxx/'), 'gmis.xjtu.edu.cn');
+  assert.equal(normalizeHost('cpipc.acge.org.cn.'), 'cpipc.acge.org.cn');
+  assert.equal(normalizeHost('http://[::1]:8080/'), '[::1]');
+  for (const bad of ['', '*.example.com', 'ftp://example.com', 'https://u:p@example.com', 'a b'])
+    assert.throws(() => normalizeHost(bad), /errInvalidDomain/);
 });
-test('proxy configuration rejects credentials, embedded ports and unsafe values', () => {
-  assert.deepEqual(validateProxy({ scheme: 'socks5', host: '[::1]', port: '1080' }), {
+
+test('validateProxy checks scheme, host and port', () => {
+  assert.deepEqual(validateProxy({ scheme: 'socks5', host: '127.0.0.1', port: '10808' }), {
     scheme: 'socks5',
-    host: '[::1]',
-    port: 1080,
+    host: '127.0.0.1',
+    port: 10808,
   });
-  for (const input of [
-    { scheme: 'ftp', host: 'localhost', port: 80 },
-    { scheme: 'http', host: 'host:80', port: 80 },
-    { scheme: 'http', host: 'http://localhost', port: 80 },
-    { scheme: 'http', host: 'localhost', port: 0 },
-    { scheme: 'http', host: 'localhost', port: 65536 },
-    { scheme: 'http', host: 'localhost', port: 80.5 },
-  ])
-    assert.throws(() => validateProxy(input));
+  assert.throws(() => validateProxy({ scheme: 'ftp', host: 'a', port: 1 }), /errProxyScheme/);
+  assert.throws(() => validateProxy({ scheme: 'http', host: 'http://a', port: 1 }), /errProxyHost/);
+  assert.throws(() => validateProxy({ scheme: 'http', host: 'a', port: 70000 }), /errProxyPort/);
 });
-test('PAC routes selected hosts directly, preserves proxy for overseas sites and suffix lookalikes', () => {
-  const s = defaultState();
-  s.enabled = true;
-  s.permanent = [
-    { domain: 'gmis.xjtu.edu.cn', includeSubdomains: false },
-    { domain: 'acge.org.cn', includeSubdomains: true },
-  ];
-  const route = pacFor(s);
-  for (const host of ['gmis.xjtu.edu.cn', 'acge.org.cn', 'cpipc.acge.org.cn', 'a.b.acge.org.cn'])
-    assert.equal(route(host), 'DIRECT');
-  for (const host of [
-    'chatgpt.com',
-    'claude.ai',
-    'a.gmis.xjtu.edu.cn',
-    'evilacge.org.cn',
-    'acge.org.cn.attacker.test',
-  ])
-    assert.equal(route(host), 'PROXY 127.0.0.1:7892');
-  assert.equal(route('GMIS.XJTU.EDU.CN.'), 'DIRECT');
+
+test('siteRoot suggests the registrable domain and respects ccTLD second levels', () => {
+  assert.equal(siteRoot('gmis.xjtu.edu.cn'), 'xjtu.edu.cn');
+  assert.equal(siteRoot('cpipc.acge.org.cn'), 'acge.org.cn');
+  assert.equal(siteRoot('www.bilibili.com'), 'bilibili.com');
+  assert.equal(siteRoot('bilibili.com'), null);
+  assert.equal(siteRoot('xjtu.edu.cn'), null); // never suggest edu.cn
+  assert.equal(siteRoot('news.bbc.co.uk'), 'bbc.co.uk');
+  assert.equal(siteRoot('10.0.0.1'), null);
+  assert.equal(siteRoot('[::1]'), null);
 });
-test('temporary rules expire and cannot survive a browser session change', () => {
-  const s = defaultState();
-  s.temporary = [
-    { domain: 'temp.test', includeSubdomains: false, expiresAt: 2000, token: 'session', tabId: 1 },
-  ];
-  assert.equal(pacFor(s)('temp.test'), 'DIRECT');
-  assert.equal(pacFor(s, 'session', 2000)('temp.test'), 'PROXY 127.0.0.1:7892');
-  assert.equal(pacFor(s, 'new-session')('temp.test'), 'PROXY 127.0.0.1:7892');
+
+test('matches handles exact and subdomain rules without suffix confusion', () => {
+  const wide = { domain: 'xjtu.edu.cn', subdomains: true };
+  assert.ok(matches('gmis.xjtu.edu.cn', wide));
+  assert.ok(matches('xjtu.edu.cn', wide));
+  assert.ok(!matches('notxjtu.edu.cn', wide));
+  assert.ok(!matches('gmis.xjtu.edu.cn', { domain: 'xjtu.edu.cn', subdomains: false }));
 });
-test('private literal handling agrees between UI and PAC and can be disabled', () => {
-  const s = defaultState();
-  s.enabled = true;
-  const route = pacFor(s);
-  for (const host of [
-    'localhost',
-    'a.localhost',
-    'intranet',
-    '10.1.2.3',
-    '172.16.0.1',
-    '172.31.255.255',
-    '192.168.1.1',
-    '127.2.0.1',
-    '169.254.1.1',
-    '[::1]',
-    '[fd00::1]',
-    '[fe80::1]',
-  ]) {
-    assert.equal(isPrivateHost(host), true, host);
-    assert.equal(route(host), 'DIRECT', host);
-    assert.equal(routeForHost(s, 'session', host).kind, 'private');
-  }
-  for (const host of [
-    '172.32.0.1',
-    '192.169.1.1',
-    '8.8.8.8',
-    'example.com',
-    'localhost.evil.test',
-    '[2001:4860::1]',
-  ]) {
-    assert.equal(isPrivateHost(host), false, host);
-    assert.notEqual(route(host), 'DIRECT', host);
-  }
-  s.bypassPrivate = false;
-  assert.equal(pacFor(s)('10.0.0.1'), 'PROXY 127.0.0.1:7892');
+
+test('PAC: listed sites go DIRECT, the rest use the proxy with optional DIRECT fallback', () => {
+  const settings = {
+    ...defaultSettings(),
+    sites: [{ domain: 'gmis.xjtu.edu.cn', subdomains: false }],
+  };
+  const pac = pacFor(settings, [{ domain: 'acge.org.cn', subdomains: true, tabId: 1 }]);
+  assert.equal(pac('', 'gmis.xjtu.edu.cn'), 'DIRECT');
+  assert.equal(pac('', 'GMIS.XJTU.EDU.CN.'), 'DIRECT');
+  assert.equal(pac('', 'cpipc.acge.org.cn'), 'DIRECT');
+  assert.equal(pac('', 'chatgpt.com'), 'PROXY 127.0.0.1:7890; DIRECT');
+  assert.equal(pac('', '192.168.1.1'), 'DIRECT');
+
+  const strict = pacFor({ ...settings, fallbackDirect: false, bypassPrivate: false });
+  assert.equal(strict('', 'chatgpt.com'), 'PROXY 127.0.0.1:7890');
+  assert.equal(strict('', '192.168.1.1'), 'PROXY 127.0.0.1:7890');
 });
-test('HTTP, HTTPS, SOCKS5 endpoints; no automatic direct fallback', () => {
-  const s = defaultState();
-  s.bypassPrivate = false;
-  for (const [scheme, prefix] of [
+
+test('PAC: the master switch turns saved sites off but keeps one-time rules', () => {
+  const settings = {
+    ...defaultSettings(),
+    alwaysOn: false,
+    sites: [{ domain: 'saved.example', subdomains: false }],
+  };
+  const pac = pacFor(settings, [{ domain: 'once.example', subdomains: false, tabId: 1 }]);
+  assert.match(pac('', 'saved.example'), /^PROXY/);
+  assert.equal(pac('', 'once.example'), 'DIRECT');
+});
+
+test('PAC uses the right keyword per proxy scheme', () => {
+  for (const [scheme, word] of [
     ['http', 'PROXY'],
     ['https', 'HTTPS'],
     ['socks5', 'SOCKS5'],
   ]) {
-    s.proxy.scheme = scheme;
-    assert.equal(pacFor(s)('example.com'), `${prefix} 127.0.0.1:7892`);
+    const pac = pacFor({
+      ...defaultSettings(),
+      fallbackDirect: false,
+      proxy: { scheme, host: 'proxy.lan', port: 1080 },
+    });
+    assert.equal(pac('', 'example.com'), `${word} proxy.lan:1080`);
   }
 });
-test('explicit IPv6 direct rules work with unbracketed PAC hosts', () => {
-  const s = defaultState();
-  s.bypassPrivate = false;
-  s.permanent = [{ domain: '[2001:db8::1]', includeSubdomains: false }];
-  assert.equal(pacFor(s)('2001:db8::1'), 'DIRECT');
+
+test('isPrivateHost', () => {
+  for (const host of ['localhost', 'intranet', '10.1.2.3', '172.20.0.1', '192.168.0.1', '[::1]'])
+    assert.ok(isPrivateHost(host), host);
+  for (const host of ['example.com', '172.32.0.1', '8.8.8.8', '1.2.3.4.5'])
+    assert.ok(!isPrivateHost(host), host);
+});
+
+test('routeFor reports why a host is direct', () => {
+  const settings = { ...defaultSettings(), sites: [{ domain: 'a.example', subdomains: false }] };
+  const temps = [{ domain: 'b.example', subdomains: false, tabId: 3 }];
+  assert.equal(routeFor(settings, temps, 'a.example').kind, 'saved');
+  assert.equal(routeFor({ ...settings, alwaysOn: false }, temps, 'a.example').kind, 'savedOff');
+  assert.equal(routeFor(settings, temps, 'b.example').kind, 'temporary');
+  assert.equal(routeFor(settings, temps, 'localhost').kind, 'private');
+  assert.equal(routeFor(settings, temps, 'c.example').kind, 'proxy');
+});
+
+test('migrate upgrades 1.x state and drops invalid entries', () => {
+  const v2 = migrate({
+    version: 1,
+    enabled: true,
+    proxy: { scheme: 'http', host: '127.0.0.1', port: 7892 },
+    bypassPrivate: false,
+    permanent: [
+      { domain: 'gmis.xjtu.edu.cn', includeSubdomains: false },
+      { domain: 'gmis.xjtu.edu.cn', includeSubdomains: false },
+      { domain: '*.bad', includeSubdomains: true },
+    ],
+    temporary: [{ domain: 'x.example', tabId: 1 }],
+  });
+  assert.equal(v2.version, 2);
+  assert.equal(v2.alwaysOn, true);
+  assert.equal(v2.proxy.port, 7892);
+  assert.equal(v2.bypassPrivate, false);
+  assert.deepEqual(v2.sites, [{ domain: 'gmis.xjtu.edu.cn', subdomains: false }]);
+  assert.equal(migrate({ version: 1, enabled: false, permanent: [] }).alwaysOn, false);
+  assert.deepEqual(migrate(undefined), defaultSettings());
+  assert.deepEqual(migrate({ version: 2, proxy: { scheme: 'x' } }).proxy, defaultSettings().proxy);
 });

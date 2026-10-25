@@ -1,0 +1,223 @@
+{
+  "extName": {
+    "message": "网站直连开关"
+  },
+  "extShort": {
+    "message": "直连开关"
+  },
+  "extDescription": {
+    "message": "开着代理时，一键让当前网站直连，其他网站继续走代理。"
+  },
+  "savedSites": {
+    "message": "常驻直连"
+  },
+  "statusProxy": {
+    "message": "正在通过代理访问"
+  },
+  "statusTemporary": {
+    "message": "已直连 · 仅本次"
+  },
+  "statusSaved": {
+    "message": "已直连 · 常驻"
+  },
+  "statusSavedOff": {
+    "message": "已在常驻列表，但开关已关闭"
+  },
+  "statusPrivate": {
+    "message": "局域网地址 · 直连"
+  },
+  "unsupported": {
+    "message": "此页面无法设置"
+  },
+  "unsupportedHint": {
+    "message": "请在 http/https 网站上使用"
+  },
+  "btnDirect": {
+    "message": "本页直连"
+  },
+  "btnRestore": {
+    "message": "恢复代理"
+  },
+  "hintProxy": {
+    "message": "只影响此网站，其他网站照常走代理"
+  },
+  "hintTemporary": {
+    "message": "关闭此标签页后自动恢复代理"
+  },
+  "hintSaved": {
+    "message": "此网站会一直直连"
+  },
+  "hintPrivate": {
+    "message": "局域网地址始终直连，可在设置中关闭"
+  },
+  "optWide": {
+    "message": "包含整个 $ROOT$",
+    "placeholders": {
+      "root": {
+        "content": "$1"
+      }
+    }
+  },
+  "optSubdomains": {
+    "message": "包含 $HOST$ 的子域名",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "optRemember": {
+    "message": "始终直连此网站"
+  },
+  "rememberNeedsOn": {
+    "message": "需先开启右上角「常驻直连」"
+  },
+  "settings": {
+    "message": "设置"
+  },
+  "siteCount": {
+    "message": "常驻 $COUNT$ 个",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "errInvalidDomain": {
+    "message": "请输入有效的域名或网址（不支持通配符）。"
+  },
+  "errProxyScheme": {
+    "message": "协议必须是 HTTP、HTTPS 或 SOCKS5。"
+  },
+  "errProxyHost": {
+    "message": "地址只填主机名或 IP，不含协议和端口。"
+  },
+  "errProxyPort": {
+    "message": "端口必须是 1–65535 的整数。"
+  },
+  "errOtherExtension": {
+    "message": "另一个扩展（如 ZeroOmega）正在控制代理，请先停用它。"
+  },
+  "errPolicy": {
+    "message": "代理设置被组织策略锁定，扩展无法修改。"
+  },
+  "errNotApplied": {
+    "message": "直连规则尚未生效，请重新打开此窗口。"
+  },
+  "errTab": {
+    "message": "找不到当前标签页。"
+  },
+  "errTooMany": {
+    "message": "常驻列表最多 500 个网站。"
+  },
+  "errUnsupported": {
+    "message": "不支持的操作。"
+  },
+  "errNoResponse": {
+    "message": "扩展后台无响应，请在扩展管理页重新加载。"
+  },
+  "reloadFailed": {
+    "message": "已更新，请手动刷新页面。"
+  },
+  "optionsTitle": {
+    "message": "设置 · 网站直连开关"
+  },
+  "secProxy": {
+    "message": "代理端口"
+  },
+  "secProxyDesc": {
+    "message": "填写代理软件（Clash、v2rayN 等）的本地监听地址，未直连的网站通过它访问。"
+  },
+  "fieldScheme": {
+    "message": "协议"
+  },
+  "fieldHost": {
+    "message": "地址"
+  },
+  "fieldPort": {
+    "message": "端口"
+  },
+  "btnSave": {
+    "message": "保存"
+  },
+  "presets": {
+    "message": "常用端口"
+  },
+  "msgSaved": {
+    "message": "已保存。"
+  },
+  "optFallback": {
+    "message": "代理软件关闭时自动直连"
+  },
+  "optFallbackDesc": {
+    "message": "避免关掉代理软件后 Edge 打不开网页。"
+  },
+  "optPrivate": {
+    "message": "局域网地址直连"
+  },
+  "optPrivateDesc": {
+    "message": "localhost、内网 IP 和单段主机名不走代理。"
+  },
+  "optReload": {
+    "message": "切换后自动刷新页面"
+  },
+  "optReloadDesc": {
+    "message": "常在填写表单时切换的话可以关闭。"
+  },
+  "secSavedDesc": {
+    "message": "打开时，列表中的网站一直直连；关闭后列表保留但不生效，只能单次直连。"
+  },
+  "fieldDomain": {
+    "message": "域名或网址"
+  },
+  "domainPlaceholder": {
+    "message": "例如 gmis.xjtu.edu.cn"
+  },
+  "optAddSubdomains": {
+    "message": "包含子域名"
+  },
+  "btnAdd": {
+    "message": "添加"
+  },
+  "emptySaved": {
+    "message": "还没有常驻网站。在网站上打开扩展，开启「始终直连此网站」即可添加。"
+  },
+  "scopeExact": {
+    "message": "仅此域名"
+  },
+  "scopeWide": {
+    "message": "含子域名"
+  },
+  "btnRemove": {
+    "message": "删除"
+  },
+  "ariaRemove": {
+    "message": "删除 $DOMAIN$",
+    "placeholders": {
+      "domain": {
+        "content": "$1"
+      }
+    }
+  },
+  "secTemps": {
+    "message": "本次直连"
+  },
+  "secTempsDesc": {
+    "message": "关闭对应的标签页或重启浏览器后，自动恢复代理。"
+  },
+  "secHow": {
+    "message": "工作原理与限制"
+  },
+  "how1": {
+    "message": "扩展向 Edge 写入一段本地 PAC 规则：列表中的网站直连，其余网站走上面的代理端口。只影响当前 Edge 配置文件，不修改 Windows 代理，也不影响其他软件。"
+  },
+  "how2": {
+    "message": "没有生效的直连规则时，扩展会交还代理控制，Edge 照常跟随系统代理。扩展后台空闲时自动休眠，不常驻内存。"
+  },
+  "how3": {
+    "message": "规则按域名生效，同一网站的其他标签页也会直连。若代理软件开启了 TUN（虚拟网卡）模式，浏览器直连无法绕过它，请在代理软件中添加直连规则。"
+  },
+  "how4": {
+    "message": "网站的登录、视频等内容可能来自其他域名。若页面只有部分内容加载失败，可选择「包含整个站点」或在这里手动添加。"
+  }
+}

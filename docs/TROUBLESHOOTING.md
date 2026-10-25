@@ -1,48 +1,38 @@
-# 安装与排障 / Troubleshooting
+# 常见问题 / FAQ
 
-## 安装后其他网站无法联网
+## 开启直连后，其他网站都打不开了
 
-确认扩展设置中的协议、主机和端口与代理客户端一致。HTTP 和 SOCKS5 端口可能不同；HTTPS 代理协议也不等于“访问 HTTPS 网站”。绝大多数本地混合端口可使用 HTTP。
+设置里的**代理端口**和代理软件不一致。打开代理软件查看本地监听端口（常见：Clash / Mihomo `7890`，Clash Verge Rev `7897`，v2rayN `10808`），在设置页改正后保存。HTTP 和 SOCKS5 端口可能不同；不确定时选 HTTP + 混合端口（mixed port）。
 
-点击“暂停分流”可释放扩展控制，恢复较低优先级的代理设置。扩展不会关闭代理客户端，也不会修改 Windows 系统代理。
+临时解决：在弹窗里点「恢复代理」，所有直连都恢复后扩展会交还代理控制。
 
-If other sites stop loading after enabling routing, verify the configured proxy endpoint and protocol. Pause routing to release extension control. The extension does not add a DIRECT fallback when the proxy is unavailable.
+_Other sites stop loading → the proxy port in Settings doesn't match your client. Fix it, or restore all sites to hand control back._
 
-## 网站已直连，仍无法打开
+## 已经显示「已直连」，网站还是打不开
 
-1. 刷新当前页，必要时关闭并重新打开该页面，以结束已有连接。
-2. 确认客户端是否开启 TUN、VPN 或透明代理。浏览器 DIRECT 无法绕过系统层路由，应在客户端的规则模式中添加直连规则。
-3. 查看失败资源是否属于另一个域名：登录、验证码、API、图片和视频 CDN 经常独立部署。
-4. 校内系统可能需要校园网或学校 VPN。部分网站自身的维护、证书、DNS 和账户问题也与代理无关。
+1. 刷新或重新打开页面，结束已有的连接。
+2. 代理软件是否开着 **TUN / 虚拟网卡 / 增强模式**？这时浏览器直连无法绕过它，请在代理软件的规则里给该域名加 `DIRECT`。
+3. 只有部分内容失败（登录、验证码、视频）？这些资源可能在别的域名上。打开「包含整个站点」，或按 F12 → 网络面板找到失败的域名，在设置页添加。
+4. 校内系统可能本身就要求校园网或学校 VPN，这与代理无关。
 
-Browser DIRECT bypasses the explicit browser proxy only. It does not defeat TUN/VPN routing, provide campus-network access, or guarantee a particular website will accept your connection.
+_Browser DIRECT does not bypass TUN mode, and some resources live on other domains._
 
-## 临时直连为什么影响另一个标签页？
+## 为什么另一个标签页也直连了？
 
-Edge 的代理配置对当前配置文件生效，PAC 接收目标网址和主机名，没有标签页编号。同域名的其他标签页也会直连。创建临时规则的标签页编号只用于决定何时删除规则。
+Edge 的代理规则按域名判断，拿不到“是哪个标签页”。同一网站的所有标签页共用规则；“关闭标签页后恢复”指的是**发起直连的那个**标签页关闭时。
 
-临时规则在到期或创建它的标签页关闭后删除。浏览器休眠可能延迟清理；完整重启后会按新会话重新生成规则。仅关闭窗口而 Edge 后台继续运行，不一定是一次完整重启。
+## 关掉代理软件后，Edge 还能用吗？
 
-Temporary rules are **domain rules with tab-based cleanup**, not per-tab network isolation.
+能。默认开启的「代理软件关闭时自动直连」会让连不上代理时改为直连。注意：代理连不上之后，Edge 会在几分钟内暂时不再尝试它，所以刚重新打开代理软件时，需要代理的网站可能要稍等片刻（或重启浏览器）才恢复。不需要这个行为可以在设置里关闭。
 
-## 代理由其他扩展或组织控制
+## 提示「另一个扩展正在控制代理」
 
-请一次只启用一个代理管理扩展。ZeroOmega、FoxyProxy 等可能与本扩展争用代理配置。组织策略优先级高于扩展；本扩展无法绕过管理员策略。
+ZeroOmega、FoxyProxy 等代理扩展与本扩展不能同时控制代理。停用其中一个即可。被组织策略锁定时，扩展无法修改代理设置。
 
-Use one proxy-management extension at a time. Enterprise policies can prevent changes and must be handled by the administrator.
+## 从 1.x 升级
 
-## 删除规则后仍然直连
-
-检查是否还有父域名、子域名范围或另一条临时规则命中该网站。启用了内网直连时，内网 IP、localhost 和单段主机名也会直连。浏览器本身还会对部分本地地址进行隐式代理绕过。
-
-Check overlapping rules and the optional local-network bypass. Existing requests are not cancelled when a rule changes.
-
-## InPrivate / 其他浏览器
-
-本扩展不提供 InPrivate 独立控制。浏览器可能让 InPrivate 继承普通窗口的代理配置。主要测试目标是桌面版 Microsoft Edge；其他 Chromium 浏览器仅属兼容性尝试，不保证通过相同加载方式安装。
-
-The supported target is desktop Microsoft Edge. InPrivate isolation and per-tab proxies are outside the scope of this project.
+设置和常驻网站会自动迁移。1.x 的「临时直连 30 分钟」改为「关闭标签页后结束」，不再中途自动失效。
 
 ## 报告问题
 
-提供 Edge 版本、系统、扩展版本、代理协议、是否开启 TUN/VPN 和最小复现步骤。先删去代理密码、Cookie、私人域名和敏感网络日志。
+请在 [Issues](https://github.com/IdKomorebi/Edge-Direct-Switch/issues) 中提供 Edge 版本、扩展版本、代理软件及模式（系统代理 / TUN）和复现步骤。不要粘贴密码、Cookie 或内网地址。

@@ -1,76 +1,111 @@
-import { normalizeDomain } from './core.mjs';
-import { $, request, showMessage, busy, controlWarning } from './ui.mjs';
-let tab, host, snapshot;
-async function render() {
-  showMessage('');
-  snapshot = await request({ type: 'snapshot', host });
-  $('host').textContent = host || '此页面不支持分流';
-  $('actions').hidden = !host;
-  const route = snapshot.route;
-  $('route').textContent =
-    snapshot.state.enabled && !snapshot.effective
-      ? '分流未生效'
-      : route?.label || '请打开 HTTP(S) 网站';
-  $('route').className =
-    `pill ${route && ['permanent', 'temporary', 'private'].includes(route.kind) && snapshot.effective ? 'direct' : ''}`;
-  $('scope').textContent = route?.rule
-    ? `生效规则：${route.rule.domain}${route.rule.includeSubdomains ? ' 及其子域名' : ''}${route.kind === 'temporary' ? ` · 至 ${new Date(route.rule.expiresAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}` : ''}`
-    : '只改变指定网站的连接方式';
-  $('remove').hidden = !route?.rule;
-  const { scheme, host: proxyHost, port } = snapshot.state.proxy;
-  $('endpoint').textContent = `${scheme.toUpperCase()} ${proxyHost}:${port}`;
-  $('toggle').textContent = snapshot.state.enabled ? '暂停分流' : '启用分流';
-  const warning = controlWarning(snapshot);
-  if (warning) showMessage(warning, true);
+import { $, t, localize, request, toast, busy } from './ui.mjs';
+
+let tab, snap;
+let wideChoice = false; // scope picked before the page is switched to direct
+
+const DIRECT = ['temporary', 'saved'];
+const isDirect = (s) => DIRECT.includes(s?.route?.kind);
+const routeKey = (s) =>
+  isDirect(s) ? `${s.route.rule.domain}|${s.route.rule.subdomains}` : 'proxy';
+
+function render() {
+  const { settings, route, host, root, conflict } = snap;
+  $('alwaysOn').checked = settings.alwaysOn;
+  $('count').textContent = t('siteCount', String(settings.sites.length));
+
+  $('host').textContent = host || t('unsupported');
+  $('avatar').textContent = host ? host.replace(/^www\./, '')[0].toUpperCase() : '·';
+
+  const kind = route?.kind ?? 'unsupported';
+  const direct = isDirect(snap);
+  const status = {
+    proxy: 'statusProxy',
+    temporary: 'statusTemporary',
+    saved: 'statusSaved',
+    savedOff: 'statusSavedOff',
+    private: 'statusPrivate',
+    unsupported: 'unsupportedHint',
+  }[kind];
+  $('status').querySelector('span').textContent = t(status);
+  document.body.dataset.state = direct || kind === 'private' ? 'direct' : kind;
+
+  const toggle = $('toggle');
+  toggle.disabled = !host || kind === 'private';
+  toggle.textContent = t(direct ? 'btnRestore' : 'btnDirect');
+  toggle.className = `big ${direct ? 'secondary' : 'primary'}`;
+  $('hint').textContent = t(
+    {
+      proxy: 'hintProxy',
+      savedOff: 'hintProxy',
+      temporary: 'hintTemporary',
+      saved: 'hintSaved',
+      private: 'hintPrivate',
+    }[kind] ?? 'unsupportedHint',
+  );
+
+  $('options').hidden = !host || kind === 'private';
+  $('wideLabel').textContent = root ? t('optWide', root) : t('optSubdomains', host ?? '');
+  $('wide').checked = direct ? route.rule.subdomains : wideChoice;
+  $('remember').checked = ['saved', 'savedOff'].includes(kind);
+  $('remember').disabled = !settings.alwaysOn;
+  $('rememberHint').hidden = settings.alwaysOn;
+
+  if (conflict) toast(t(conflict), 'error');
 }
-async function act(message) {
-  await request({ ...message, host });
-  await render();
-  showMessage('规则已更新。');
-  if ($('reload').checked && tab?.id != null) {
+
+// Apply a change, then reload the page if its route actually changed.
+async function change(message) {
+  const before = routeKey(snap);
+  snap = await request({ ...message, host: snap.host });
+  render();
+  if (snap.settings.autoReload && before !== routeKey(snap) && tab?.id != null) {
     try {
       await chrome.tabs.reload(tab.id);
     } catch {
-      showMessage('规则已更新，请手动刷新页面。');
+      toast(t('reloadFailed'));
     }
   }
 }
-$('settings').addEventListener('click', () => chrome.runtime.openOptionsPage());
-$('temporary').addEventListener('click', () =>
-  busy(() =>
-    act({
-      type: 'add',
-      rule: { domain: host, includeSubdomains: $('subdomains').checked },
-      lifetime: 'temporary',
-      tabId: tab.id,
-    }),
-  ),
-);
-$('permanent').addEventListener('click', () =>
-  busy(() =>
-    act({
-      type: 'add',
-      rule: { domain: host, includeSubdomains: $('subdomains').checked },
-      lifetime: 'permanent',
-    }),
-  ),
-);
-$('remove').addEventListener('click', () =>
-  busy(() =>
-    act({ type: 'remove', rule: snapshot.route.rule, temporaryId: snapshot.route.rule.id }),
-  ),
-);
-$('toggle').addEventListener('click', () =>
+
+// Re-render even on failure so switches never show a state that was not saved.
+const act = (task) =>
   busy(async () => {
-    await request({ type: 'enable', enabled: !snapshot.state.enabled });
-    await render();
-    showMessage(snapshot.state.enabled ? '分流已启用。' : '已暂停，Edge 恢复先前代理设置。');
+    try {
+      await task();
+    } finally {
+      if (snap) render();
+    }
+  });
+
+const setPage = (direct, remember, wide) =>
+  change({ type: 'setPage', tabId: tab?.id, direct, remember, wide });
+
+$('toggle').addEventListener('click', () =>
+  act(() => (isDirect(snap) ? setPage(false) : setPage(true, false, wideChoice))),
+);
+$('wide').addEventListener('change', (event) =>
+  act(async () => {
+    wideChoice = event.target.checked;
+    if (isDirect(snap)) await setPage(true, snap.route.kind === 'saved', wideChoice);
   }),
 );
+// "Always" only changes persistence: turning it off keeps the page direct for this tab.
+$('remember').addEventListener('change', (event) =>
+  act(() =>
+    setPage(true, event.target.checked, isDirect(snap) ? snap.route.rule.subdomains : wideChoice),
+  ),
+);
+$('alwaysOn').addEventListener('change', (event) =>
+  act(() => change({ type: 'alwaysOn', value: event.target.checked })),
+);
+$('openSettings').addEventListener('click', () => chrome.runtime.openOptionsPage());
+$('count').addEventListener('click', () => chrome.runtime.openOptionsPage());
+
+localize();
+$('version').textContent = `v${chrome.runtime.getManifest().version}`;
 busy(async () => {
   [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  try {
-    if (tab?.url && /^https?:\/\//.test(tab.url)) host = normalizeDomain(tab.url);
-  } catch {}
-  await render();
+  const host = /^https?:\/\//.test(tab?.url ?? '') ? new URL(tab.url).hostname : null;
+  snap = await request({ type: 'snapshot', host });
+  render();
 });

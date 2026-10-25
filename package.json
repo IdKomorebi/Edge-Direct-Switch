@@ -1,16 +1,17 @@
 {
   "name": "edge-direct-switch",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "Domain-based direct connection switch for Microsoft Edge",
+  "description": "Keep your proxy on and let the current website connect directly in Microsoft Edge",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "pack": "node scripts/pack.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:browser": "node scripts/browser-smoke.mjs",
-    "check": "node scripts/check-package.mjs"
+    "check": "node scripts/check-package.mjs",
+    "icons": "node scripts/make-icons.mjs"
   },
   "engines": {
     "node": ">=20"

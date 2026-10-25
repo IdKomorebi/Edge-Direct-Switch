@@ -1,45 +1,73 @@
 <!doctype html>
-<html lang="zh-CN">
+<html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>网站直连开关</title>
+    <title>Edge Direct Switch</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body class="popup">
-    <header class="brand">
-      <img src="icons/48.png" alt="" />
-      <div><strong>网站直连开关</strong><span>EDGE DIRECT SWITCH</span></div>
-      <button id="settings" class="icon-button" title="打开设置" aria-label="打开设置">⚙</button>
+    <header class="bar">
+      <div class="brand">
+        <img src="icons/32.png" alt="" width="20" height="20" />
+        <span data-i18n="extShort"></span>
+      </div>
+      <label class="inline-switch">
+        <span data-i18n="savedSites"></span>
+        <input id="alwaysOn" type="checkbox" role="switch" class="switch" />
+      </label>
     </header>
+
     <main>
-      <div id="message" class="message" role="status" hidden></div>
-      <section class="site-card">
-        <div class="eyebrow">当前网站</div>
-        <h1 id="host">正在读取…</h1>
-        <div id="route" class="pill">正在检查</div>
-        <p id="scope" class="muted"></p>
+      <section class="card site">
+        <div id="avatar" class="avatar" aria-hidden="true"></div>
+        <div class="site-text">
+          <div id="host" class="host"></div>
+          <div id="status" class="status"><i class="dot"></i><span></span></div>
+        </div>
       </section>
-      <div id="actions" class="stack">
-        <button id="temporary" class="primary">临时直连 30 分钟</button>
-        <button id="permanent" class="secondary">始终直连此网站</button>
-        <button id="remove" class="secondary" hidden>删除此直连规则</button>
-        <label class="check"><input type="checkbox" id="subdomains" /> 包含此域名的子域名</label>
-        <label class="check"
-          ><input type="checkbox" id="reload" checked />
-          操作后刷新当前页（未保存的内容会丢失）</label
-        >
-      </div>
-      <p class="notice">
-        规则对同域名的所有标签页生效。临时规则在 30 分钟后或创建它的标签页关闭时结束。
-      </p>
-      <div class="proxy-line">
-        <span id="endpoint"></span><button id="toggle" class="text-button">启用分流</button>
-      </div>
-      <p class="footnote">
-        分流启用后：规则内网站直连，其余网站使用上方代理。其他应用继续使用原有设置。
-      </p>
+
+      <button id="toggle" class="primary big" disabled></button>
+      <p id="hint" class="hint"></p>
+
+      <section id="options" class="card list" hidden>
+        <label class="row">
+          <span id="wideLabel" class="row-text"></span>
+          <input id="wide" type="checkbox" role="switch" class="switch" />
+        </label>
+        <label class="row">
+          <span class="row-text">
+            <span data-i18n="optRemember"></span>
+            <small id="rememberHint" data-i18n="rememberNeedsOn" hidden></small>
+          </span>
+          <input id="remember" type="checkbox" role="switch" class="switch" />
+        </label>
+      </section>
+
+      <div id="message" class="toast" role="status" hidden></div>
     </main>
+
+    <footer class="foot">
+      <button id="openSettings" class="link">
+        <svg
+          viewBox="0 0 24 24"
+          width="15"
+          height="15"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <path d="M4 7h9m4 0h3M4 17h3m4 0h9" />
+          <circle cx="15" cy="7" r="2" />
+          <circle cx="9" cy="17" r="2" />
+        </svg>
+        <span data-i18n="settings"></span>
+      </button>
+      <span id="version" class="muted"></span>
+      <button id="count" class="link"></button>
+    </footer>
     <script type="module" src="popup.mjs"></script>
   </body>
 </html>

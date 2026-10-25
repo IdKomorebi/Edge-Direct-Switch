@@ -1,34 +1,49 @@
 export const $ = (id) => document.getElementById(id);
-export async function request(message) {
-  const response = await chrome.runtime.sendMessage(message);
-  if (!response?.ok) throw new Error(response?.error || '扩展后台未响应，请在扩展管理页重新加载。');
-  return response.data;
-}
-export function showMessage(text, error = false) {
-  $('message').textContent = text;
-  $('message').className = `message${error ? ' error' : ''}`;
-  $('message').hidden = !text;
-}
-export async function busy(task) {
-  const controls = [...document.querySelectorAll('button')].map((button) => [
-    button,
-    button.disabled,
-  ]);
-  controls.forEach(([button]) => {
-    button.disabled = true;
-  });
-  try {
-    await task();
-  } catch (error) {
-    showMessage(error.message, true);
-  } finally {
-    controls.forEach(([button, disabled]) => {
-      button.disabled = disabled;
-    });
+
+export const t = (key, subs) => chrome.i18n.getMessage(key, subs) || key;
+
+// Errors from core/controller carry message keys such as `errInvalidDomain`.
+export const errorText = (error) =>
+  /^err\w+$/.test(error?.message) ? t(error.message) : String(error?.message || error);
+
+export function localize() {
+  document.documentElement.lang = chrome.i18n.getUILanguage();
+  for (const el of document.querySelectorAll('[data-i18n]')) el.textContent = t(el.dataset.i18n);
+  for (const el of document.querySelectorAll('[data-i18n-placeholder]'))
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  for (const el of document.querySelectorAll('[data-i18n-title]')) {
+    el.title = t(el.dataset.i18nTitle);
+    el.setAttribute('aria-label', el.title);
   }
 }
-export function controlWarning(snapshot) {
-  if (snapshot.state.enabled && !snapshot.effective)
-    return '分流尚未生效：请检查是否有其他代理扩展、组织策略或代理配置冲突。';
-  return '';
+
+export async function request(message) {
+  const response = await chrome.runtime.sendMessage(message);
+  if (!response?.ok) throw new Error(response?.error || 'errNoResponse');
+  return response.data;
+}
+
+let timer;
+export function toast(text, kind = 'info') {
+  const el = $('message');
+  clearTimeout(timer);
+  el.textContent = text;
+  el.className = `toast ${kind}`;
+  el.hidden = !text;
+  if (text && kind === 'info') timer = setTimeout(() => (el.hidden = true), 2400);
+}
+
+// Runs actions one after another (never dropped) and reports failures in the toast.
+let queue = Promise.resolve();
+let pending = 0;
+export function busy(task) {
+  pending++;
+  document.body.classList.add('busy');
+  queue = queue
+    .then(task)
+    .catch((error) => toast(errorText(error), 'error'))
+    .finally(() => {
+      if (--pending === 0) document.body.classList.remove('busy');
+    });
+  return queue;
 }

@@ -2,46 +2,41 @@
 
 ## Fast checks
 
-Use Node.js 20+:
-
 ```sh
 npm ci
-npm test
+npm test               # core routing logic and controller (Node built-ins only)
+npm run check          # manifest, permissions, locale keys, package contents
 npm run format:check
 npm run pack
 ```
 
-The unit tests and ZIP packager use Node.js built-ins. Development dependencies provide code formatting and the optional browser driver; no npm packages are shipped with the extension.
-
 ## Real browser test
 
-With Microsoft Edge installed:
+Requires Microsoft Edge:
 
 ```sh
 npm run test:browser
+TEST_LANG=en npm run test:browser   # English UI
 ```
 
-The test launches Edge headlessly with a **new, isolated profile** under `test-results/`. It starts a local HTTP target and marker proxy on ephemeral loopback ports. Test domains under `.route.test` resolve to the local target; no external target website is required.
+The script launches Edge headlessly with a **new throwaway profile** in `test-results/`, a local "target" server (answers `DIRECT`) and a local marker proxy (answers `PROXY`). Test host names are mapped to `127.0.0.1` with `--host-resolver-rules`, so no external website is contacted.
 
-Checks:
+It drives the real popup and settings page and checks that:
 
-1. Installation starts without taking proxy control.
-2. Unlisted domains use the configured marker proxy.
-3. A selected domain connects directly while another domain remains proxied.
-4. Removing its rule restores proxy routing.
-5. Temporary rules connect directly and are removed when their source tab closes.
-6. Pause releases the extension's proxy setting.
+1. Installing and saving settings do not take proxy control.
+2. **Connect directly** makes the site DIRECT while another site stays on the proxy.
+3. Closing the tab ends the one-time rule.
+4. **Always connect directly** survives closing the tab.
+5. Turning **Saved sites** off releases control when nothing else is active.
+6. One-time rules still work with the master switch off and release control when their tab closes.
+7. **Use proxy again** removes a saved site.
 
-The script also captures the actual settings UI. Screenshots contain example rules only. Test profiles, screenshots and request logs stay in ignored `test-results/`; only selected documentation screenshots are committed.
+Screenshots for the README are written to `test-results/` (`popup-*.png`, `options-*.png`) and copied to `docs/images/` by hand when the UI changes.
 
-Optional environment variables: `TEST_BROWSER=msedge` (default), `TEST_EXECUTABLE` for an explicit browser binary, and `PLAYWRIGHT_MODULE` for an externally installed Playwright module. Use the same extension-loading support as the installed browser; some Chrome versions restrict command-line loading.
+Environment variables: `TEST_BROWSER` (Playwright channel, default `msedge`), `TEST_EXECUTABLE` (explicit browser binary), `PLAYWRIGHT_MODULE` (path to an existing Playwright install), `TEST_LANG` (default `zh-CN`).
 
-## Recorded local verification
+## Releasing
 
-On 2026-10-25, the browser routing test passed using Windows and Microsoft Edge **155.0.4283.45**. This verifies real Edge routing against the local marker servers. It does **not** verify access to the example university/competition sites, campus networks, external proxy services, SOCKS5 servers or every VPN/TUN combination.
-
-Unit tests cover matching, invalid input, temporary expiry/session cleanup, ownership conflicts and storage rollback. HTTP/HTTPS/SOCKS5 PAC output is checked at the unit level; only HTTP marker routing is exercised by the browser test.
-
-## Before publishing
-
-Run all checks, ensure `package.json` and `extension/manifest.json` versions agree, update the changelog and release notes, then push a `v<version>` tag. The release workflow verifies the version, rebuilds the ZIP and publishes it with `SHA256SUMS.txt`.
+1. Update the version in `package.json`, `package-lock.json` and `extension/manifest.json`.
+2. Update `CHANGELOG.md` and `docs/RELEASE_NOTES.md`.
+3. Run all checks, commit, then push a `v<version>` tag. The release workflow rebuilds the ZIP and publishes it with `SHA256SUMS.txt`.

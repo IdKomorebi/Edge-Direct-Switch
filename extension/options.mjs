@@ -1,90 +1,116 @@
-import { $, request, showMessage, busy, controlWarning } from './ui.mjs';
-let snapshot;
-async function render(fillForm = false) {
-  showMessage('');
-  snapshot = await request({ type: 'snapshot' });
-  const { state } = snapshot;
-  $('status').textContent = state.enabled
-    ? snapshot.effective
-      ? '已启用网站分流'
-      : '分流未生效'
-    : '正在跟随系统代理';
-  $('toggle').textContent = state.enabled ? '暂停分流' : '启用分流';
+import { $, t, localize, request, toast, busy } from './ui.mjs';
+
+let snap;
+
+function ruleRow(rule, onRemove) {
+  const row = document.createElement('div');
+  row.className = 'row';
+  const text = document.createElement('span');
+  text.className = 'row-text';
+  const name = document.createElement('strong');
+  name.textContent = rule.domain;
+  const scope = document.createElement('small');
+  scope.textContent = t(rule.subdomains ? 'scopeWide' : 'scopeExact');
+  text.append(name, scope);
+  const remove = document.createElement('button');
+  remove.className = 'link danger';
+  remove.textContent = t('btnRemove');
+  remove.setAttribute('aria-label', t('ariaRemove', rule.domain));
+  remove.addEventListener('click', () => busy(() => update(onRemove(rule))));
+  row.append(text, remove);
+  return row;
+}
+
+function render(fillForm = false) {
+  const { settings, temps, conflict } = snap;
+  $('alwaysOn').checked = settings.alwaysOn;
+  for (const key of ['fallbackDirect', 'bypassPrivate', 'autoReload'])
+    $(key).checked = settings[key];
   if (fillForm) {
-    $('scheme').value = state.proxy.scheme;
-    $('proxy-host').value = state.proxy.host;
-    $('port').value = state.proxy.port;
-    $('private').checked = state.bypassPrivate;
+    $('scheme').value = settings.proxy.scheme;
+    $('proxy-host').value = settings.proxy.host;
+    $('port').value = settings.proxy.port;
   }
-  $('rules').replaceChildren();
-  const rules = [
-    ...state.permanent.map((rule) => ({ ...rule, temporary: false })),
-    ...state.temporary.map((rule) => ({ ...rule, temporary: true })),
-  ];
-  $('count').textContent = `${rules.length} 条`;
-  if (!rules.length) {
+
+  const sites = [...settings.sites].sort((a, b) => a.domain.localeCompare(b.domain));
+  $('sites').replaceChildren(
+    ...sites.map((rule) => ruleRow(rule, (r) => ({ type: 'removeSite', rule: r }))),
+  );
+  $('sites').classList.toggle('off', !settings.alwaysOn);
+  if (!sites.length) {
     const empty = document.createElement('p');
     empty.className = 'empty';
-    empty.textContent = '还没有直连规则。浏览网站时，点击工具栏图标即可添加。';
-    $('rules').append(empty);
+    empty.textContent = t('emptySaved');
+    $('sites').append(empty);
   }
-  for (const rule of rules) {
-    const row = document.createElement('div');
-    row.className = 'rule-row';
-    const info = document.createElement('div');
-    const title = document.createElement('strong');
-    title.textContent = rule.domain;
-    const detail = document.createElement('span');
-    detail.textContent = `${rule.includeSubdomains ? '含子域名' : '仅此域名'} · ${rule.temporary ? `临时，至 ${new Date(rule.expiresAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}` : '始终直连'}`;
-    info.append(title, detail);
-    const remove = document.createElement('button');
-    remove.className = 'text-button danger';
-    remove.textContent = '删除';
-    remove.setAttribute('aria-label', `删除 ${rule.domain}${rule.temporary ? ' 临时规则' : ''}`);
-    remove.addEventListener('click', () =>
-      busy(async () => {
-        await request({ type: 'remove', rule, temporaryId: rule.temporary ? rule.id : undefined });
-        await render();
-        showMessage('规则已删除，请刷新受影响的网站。');
-      }),
-    );
-    row.append(info, remove);
-    $('rules').append(row);
-  }
-  const warning = controlWarning(snapshot);
-  if (warning) showMessage(warning, true);
+
+  $('temps-card').hidden = !temps.length;
+  $('temps').replaceChildren(
+    ...temps.map((rule) => ruleRow(rule, (r) => ({ type: 'removeTemp', rule: r }))),
+  );
+  if (conflict) toast(t(conflict), 'error');
 }
-async function add(domain, includeSubdomains = false) {
-  await request({ type: 'add', rule: { domain, includeSubdomains }, lifetime: 'permanent' });
-  await render();
-  showMessage('直连规则已添加，分流已启用。请刷新对应网站。');
+
+async function update(message, fillForm = false) {
+  snap = await request(message);
+  render(fillForm);
 }
-$('toggle').addEventListener('click', () =>
-  busy(async () => {
-    await request({ type: 'enable', enabled: !snapshot.state.enabled });
-    await render();
-    showMessage(snapshot.state.enabled ? '分流已启用。' : '分流已暂停，Edge 已释放代理控制。');
-  }),
+
+const saveSettings = (proxy = snap.settings.proxy) =>
+  update({
+    type: 'settings',
+    proxy,
+    fallbackDirect: $('fallbackDirect').checked,
+    bypassPrivate: $('bypassPrivate').checked,
+    autoReload: $('autoReload').checked,
+  });
+
+$('alwaysOn').addEventListener('change', (event) =>
+  busy(() => update({ type: 'alwaysOn', value: event.target.checked })).finally(
+    () => snap && render(),
+  ),
 );
+for (const key of ['fallbackDirect', 'bypassPrivate', 'autoReload'])
+  $(key).addEventListener('change', () =>
+    busy(() => saveSettings()).finally(() => snap && render()),
+  );
+
+$('add-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const domain = $('domain').value;
+  const subdomains = $('subdomains').checked;
+  busy(async () => {
+    await update({ type: 'addSite', rule: { domain, subdomains } });
+    // Only clear what was submitted; the user may already be typing the next one.
+    if ($('domain').value === domain) {
+      $('domain').value = '';
+      $('subdomains').checked = false;
+    }
+  });
+});
+
 $('proxy-form').addEventListener('submit', (event) => {
   event.preventDefault();
   busy(async () => {
-    await request({
-      type: 'settings',
-      proxy: { scheme: $('scheme').value, host: $('proxy-host').value, port: $('port').value },
-      bypassPrivate: $('private').checked,
+    await saveSettings({
+      scheme: $('scheme').value,
+      host: $('proxy-host').value,
+      port: $('port').value,
     });
-    await render(true);
-    showMessage('代理设置已保存。');
+    render(true);
+    toast(t('msgSaved'));
   });
 });
-$('rule-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  busy(async () => {
-    await add($('domain').value, $('subdomains').checked);
-    $('domain').value = '';
+for (const preset of document.querySelectorAll('.presets button'))
+  preset.addEventListener('click', () => {
+    $('scheme').value = preset.dataset.scheme;
+    $('port').value = preset.dataset.port;
+    $('proxy-host').value ||= '127.0.0.1';
+    $('proxy-form').requestSubmit();
   });
-});
-$('preset-xjtu').addEventListener('click', () => busy(() => add('gmis.xjtu.edu.cn')));
-$('preset-contest').addEventListener('click', () => busy(() => add('cpipc.acge.org.cn')));
-busy(() => render(true));
+
+localize();
+$('version').textContent = `v${chrome.runtime.getManifest().version}`;
+busy(() => update({ type: 'snapshot' }, true));
+// Keep the page current when the popup changes something in another window.
+chrome.storage.onChanged.addListener(() => busy(() => update({ type: 'snapshot' })));

@@ -1,28 +1,25 @@
-## Edge Direct Switch 1.0.0 · 网站直连开关
+## Edge Direct Switch 2.0.0 · 网站直连开关
 
-Select websites that should bypass your browser proxy while keeping other websites on your configured local proxy endpoint.
+代理一直开着，某个网站打不开时，点一下让它单独直连。
+Keep your proxy on and let one website connect directly with one click.
 
-### Install / 安装
+### 新变化 / What's new
 
-Download `edge-direct-switch-1.0.0.zip`, extract it to a permanent directory, then open `edge://extensions`, enable Developer mode and choose **Load unpacked**. Select the extracted folder containing `manifest.json`.
+- 只有存在生效的直连网站时才接管 Edge 代理，其余时间完全跟随系统代理。
+  Controls Edge's proxy only while a direct rule is active.
+- 「本页直连」在关闭标签页后结束，不再 30 分钟后中途失效。
+  One-time direct ends when its tab closes.
+- 「常驻直连」总开关；代理软件关闭时自动直连；可选包含整个站点。
+  Saved-sites master switch, DIRECT fallback, whole-site option.
+- 全新简洁界面，支持深色模式，中英文界面。
+  New compact UI with dark mode, English and Chinese.
 
-下载 ZIP 后解压，在 Edge 扩展管理页开启开发人员模式，加载包含 `manifest.json` 的目录。默认代理地址为示例值 `127.0.0.1:7892`，请先确认与你的客户端一致。
+1.x 的设置和常驻网站会自动迁移。/ 1.x settings migrate automatically.
 
-### Included
+### 安装 / Install
 
-- Temporary and permanent domain-based DIRECT rules.
-- Optional subdomain matching and local-network bypass.
-- Source-tab cleanup, session cleanup, pause/resume and proxy ownership checks.
-- HTTP, HTTPS and SOCKS5 proxy endpoint configuration.
-- Local-only settings; no telemetry, remote scripts or page-content access.
-- Chinese interface, bilingual documentation and an MIT License.
+下载 `edge-direct-switch-2.0.0.zip` 并解压到固定文件夹 → 打开 `edge://extensions` → 开启「开发人员模式」→「加载解压缩的扩展」→ 选择包含 `manifest.json` 的文件夹。之后在设置里确认代理端口。
 
-### Scope and validation
+Download and extract the ZIP, open `edge://extensions`, enable Developer mode, choose **Load unpacked** and select the extracted folder. Then check the proxy port in Settings.
 
-Rules affect **all tabs for a matching domain** in the Edge profile. This is not per-tab isolation or HTTPS path matching. DIRECT does not override TUN/VPN routing. The extension has not been published to the Edge Add-ons store.
-
-Unit tests pass. Real Edge 155.0.4283.45 routing was verified against local HTTP target/proxy marker servers, including selected-domain DIRECT, other-domain PROXY, rule deletion, temporary cleanup and pause. External example sites and every proxy/VPN combination were not tested.
-
-See [installation and limitations](https://github.com/IdKomorebi/Edge-Direct-Switch#readme) and [troubleshooting](https://github.com/IdKomorebi/Edge-Direct-Switch/blob/main/docs/TROUBLESHOOTING.md).
-
-`SHA256SUMS.txt` contains the SHA-256 digest of the extension ZIP. This is an integrity checksum, not a code-signing certificate.
+`SHA256SUMS.txt` lists the ZIP checksum (integrity only, not a code signature).

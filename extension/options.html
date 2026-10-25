@@ -1,113 +1,114 @@
 <!doctype html>
-<html lang="zh-CN">
+<html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>设置 · 网站直连开关</title>
+    <title data-i18n="optionsTitle">Edge Direct Switch</title>
+    <link rel="icon" href="icons/32.png" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body class="options">
-    <div class="layout">
-      <header class="brand">
-        <img src="icons/48.png" alt="" />
-        <div><strong>网站直连开关</strong><span>指定网站直连 · 其他网站继续代理</span></div>
-        <span class="version">v1.0.0</span>
+    <div class="page">
+      <header class="page-head">
+        <img src="icons/48.png" alt="" width="36" height="36" />
+        <h1 data-i18n="extName"></h1>
+        <span id="version" class="chip"></span>
       </header>
-      <main>
-        <div id="message" class="message" role="status" hidden></div>
-        <section class="panel status-panel">
+
+      <section class="card">
+        <div class="section-head">
           <div>
-            <div class="eyebrow">分流状态</div>
-            <h1 id="status">正在读取…</h1>
-            <p class="muted">暂停后，Edge 恢复扩展接管前的代理设置。</p>
+            <h2 id="saved-title" data-i18n="savedSites"></h2>
+            <p class="desc" data-i18n="secSavedDesc"></p>
           </div>
-          <button id="toggle" class="primary">启用分流</button>
-        </section>
-        <section class="panel">
-          <h2>其他网站使用的代理</h2>
-          <p class="muted">
-            填写代理客户端的本地监听地址。启用分流后，Edge
-            使用此固定地址；系统代理端口变化后，需要在此更新。
-          </p>
-          <form id="proxy-form">
-            <div class="form-grid">
-              <label
-                >协议<select id="scheme">
-                  <option value="http">HTTP</option>
-                  <option value="https">HTTPS</option>
-                  <option value="socks5">SOCKS5</option>
-                </select></label
-              ><label
-                >主机地址<input
-                  id="proxy-host"
-                  required
-                  placeholder="127.0.0.1"
-                  autocomplete="off" /></label
-              ><label>端口<input id="port" type="number" min="1" max="65535" required /></label>
-            </div>
-            <label class="check"
-              ><input id="private" type="checkbox" /> 局域网 IP、localhost
-              和单段内网主机名直连</label
-            >
-            <p class="footnote">仅判断网址中直接写出的内网 IP，不会额外查询域名的 DNS。</p>
-            <button class="secondary" type="submit">保存代理设置</button>
-          </form>
-        </section>
-        <section class="panel">
-          <h2>添加始终直连的网站</h2>
-          <form id="rule-form">
-            <label
-              >域名或网址<input
-                id="domain"
-                required
-                placeholder="例如 gmis.xjtu.edu.cn"
-                autocomplete="off"
-            /></label>
-            <div class="form-bottom">
-              <label class="check"
-                ><input id="subdomains" type="checkbox" /> 包含此域名的子域名</label
-              ><button class="primary" type="submit">添加并启用分流</button>
-            </div>
-          </form>
-          <div class="presets">
-            <span class="muted">快捷添加：</span
-            ><button id="preset-xjtu" class="chip">西交研究生系统</button
-            ><button id="preset-contest" class="chip">研究生创新实践大赛</button>
-          </div>
-          <p class="footnote">
-            快捷规则只添加 gmis.xjtu.edu.cn 或 cpipc.acge.org.cn。登录、验证码、视频 CDN
-            如使用其他域名，请按实际需要另行添加。
-          </p>
-        </section>
-        <section class="panel">
-          <div class="section-title">
-            <h2>直连规则</h2>
-            <span id="count" class="muted"></span>
-          </div>
-          <div id="rules" class="rules"></div>
-        </section>
-        <section class="panel help">
-          <h2>使用边界</h2>
-          <p>
-            规则按域名作用于当前 Edge 配置文件的所有普通标签页，不能隔离同域名的两个标签页。HTTPS
-            的路径通常不提供给代理脚本，不能只匹配某个页面路径。
-          </p>
-          <p>
-            “直连”指跳过浏览器显式代理。若客户端启用了 TUN、VPN、透明代理或远程 DNS
-            接管，流量仍可能由客户端处理；请在客户端添加 DIRECT
-            规则。校园内网系统也可能需要校园网或学校 VPN。
-          </p>
-          <p>
-            代理软件应保持运行。除所选网站和已启用的内网规则外，扩展不会在代理失效时自动改用直连。本扩展不会读取页面内容或上传规则。
-          </p>
-          <p>
-            不提供 InPrivate 独立控制，其代理可能继承普通窗口。关闭所有普通窗口但 Edge
-            后台仍运行时，临时规则可能继续计时；关闭创建它的标签页也会删除该规则。
-          </p>
-        </section>
-      </main>
-      <footer>本地保存 · 无分析统计 · 无远程脚本</footer>
+          <input
+            id="alwaysOn"
+            type="checkbox"
+            role="switch"
+            class="switch"
+            aria-labelledby="saved-title"
+          />
+        </div>
+        <form id="add-form" class="add">
+          <input
+            id="domain"
+            required
+            autocomplete="off"
+            data-i18n-placeholder="domainPlaceholder"
+            data-i18n-title="fieldDomain"
+          />
+          <label class="check"
+            ><input id="subdomains" type="checkbox" /><span data-i18n="optAddSubdomains"></span
+          ></label>
+          <button class="primary" type="submit" data-i18n="btnAdd"></button>
+        </form>
+        <div id="sites" class="list rules"></div>
+      </section>
+
+      <section id="temps-card" class="card" hidden>
+        <h2 data-i18n="secTemps"></h2>
+        <p class="desc" data-i18n="secTempsDesc"></p>
+        <div id="temps" class="list rules"></div>
+      </section>
+
+      <section class="card">
+        <h2 data-i18n="secProxy"></h2>
+        <p class="desc" data-i18n="secProxyDesc"></p>
+        <form id="proxy-form" class="fields">
+          <label class="field"
+            ><span data-i18n="fieldScheme"></span>
+            <select id="scheme">
+              <option value="http">HTTP</option>
+              <option value="socks5">SOCKS5</option>
+              <option value="https">HTTPS</option>
+            </select>
+          </label>
+          <label class="field"
+            ><span data-i18n="fieldHost"></span><input id="proxy-host" required autocomplete="off"
+          /></label>
+          <label class="field"
+            ><span data-i18n="fieldPort"></span
+            ><input id="port" type="number" min="1" max="65535" required
+          /></label>
+          <button class="primary" type="submit" data-i18n="btnSave"></button>
+        </form>
+        <div class="presets">
+          <span class="muted" data-i18n="presets"></span>
+          <button type="button" data-scheme="http" data-port="7890">7890 · Clash / Mihomo</button>
+          <button type="button" data-scheme="http" data-port="7897">7897 · Clash Verge Rev</button>
+          <button type="button" data-scheme="socks5" data-port="10808">10808 · v2rayN</button>
+        </div>
+        <div class="list">
+          <label class="row">
+            <span class="row-text"
+              ><span data-i18n="optFallback"></span><small data-i18n="optFallbackDesc"></small
+            ></span>
+            <input id="fallbackDirect" type="checkbox" role="switch" class="switch" />
+          </label>
+          <label class="row">
+            <span class="row-text"
+              ><span data-i18n="optPrivate"></span><small data-i18n="optPrivateDesc"></small
+            ></span>
+            <input id="bypassPrivate" type="checkbox" role="switch" class="switch" />
+          </label>
+          <label class="row">
+            <span class="row-text"
+              ><span data-i18n="optReload"></span><small data-i18n="optReloadDesc"></small
+            ></span>
+            <input id="autoReload" type="checkbox" role="switch" class="switch" />
+          </label>
+        </div>
+      </section>
+
+      <details class="card">
+        <summary data-i18n="secHow"></summary>
+        <p data-i18n="how1"></p>
+        <p data-i18n="how2"></p>
+        <p data-i18n="how3"></p>
+        <p data-i18n="how4"></p>
+      </details>
     </div>
+    <div id="message" class="toast" role="status" hidden></div>
     <script type="module" src="options.mjs"></script>
   </body>
 </html>

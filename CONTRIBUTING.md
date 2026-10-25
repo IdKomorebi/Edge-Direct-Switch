@@ -1,32 +1,32 @@
 # Contributing / 参与贡献
 
-感谢你帮助改进 Edge Direct Switch。Bug 修复、文档、翻译、无障碍改进和可复现的兼容性报告都很有帮助。
+Bug reports, translations, UI polish and focused fixes are welcome. 欢迎反馈问题、翻译和改进。
 
-## Before opening an issue
+## Setup
 
-Search existing issues, then include your Edge version, operating system, proxy protocol and a minimal reproduction. State whether the proxy client uses a system proxy, PAC, TUN or VPN. Replace private domains, IP addresses and account details with examples.
+1. Node.js 20+, then `npm ci`.
+2. Load `extension/` in Edge: `edge://extensions` → Developer mode → Load unpacked. After editing, click the reload icon on the extension card.
+3. Before a pull request: `npm test`, `npm run check`, `npm run format:check`, and if you touched routing or UI, `npm run test:browser`.
 
-本扩展按目标域名分流，无法隔离同域名的两个标签页。TUN/VPN 问题请先查阅 [排障指南](docs/TROUBLESHOOTING.md)。
+## Code map
 
-## Development
+| File                       | Role                                                        |
+| -------------------------- | ----------------------------------------------------------- |
+| `extension/core.mjs`       | Pure logic: validation, PAC generation, matching, migration |
+| `extension/controller.mjs` | Storage, proxy ownership, applying changes                  |
+| `extension/background.mjs` | Event wiring (messages, tab close, startup)                 |
+| `extension/popup.*`        | Toolbar popup                                               |
+| `extension/options.*`      | Settings page                                               |
+| `extension/_locales/*`     | UI text — every locale must have the same keys              |
 
-1. Fork and clone the repository.
-2. Use Node.js 20 or newer.
-3. Run `npm ci` for the development formatter. The extension and unit tests have no runtime dependencies.
-4. Load `extension/` in Edge using `edge://extensions` → Developer mode → Load unpacked.
-5. Run `npm test`, `npm run format:check` and `npm run pack` before submitting a pull request.
+## Guidelines
 
-Optional browser verification is documented in [docs/TESTING.md](docs/TESTING.md). It uses an isolated profile and local marker servers; never use your everyday browser profile for automated proxy tests.
+- Keep the extension dependency-free and permissions minimal; explain any new permission.
+- Routing or lifecycle changes need a test that fails without the fix.
+- UI changes: include a screenshot, check dark mode and keyboard use, and add text to **every** locale (`npm run check` verifies this).
+- Update both `README.md` (Chinese) and `README.en.md` when behavior or installation changes.
+- Never commit real browser profiles, credentials or private URLs.
 
-## Pull requests
+New language? Copy `extension/_locales/en/messages.json` to `_locales/<locale>/` and translate the `message` values.
 
-- Keep the change focused and explain the user-visible behavior.
-- For routing or lifecycle changes, add a regression test that would fail before the fix.
-- For UI changes, include a screenshot and check keyboard navigation.
-- Keep runtime code self-contained. Avoid new permissions or network dependencies unless the feature requires them, and explain that requirement.
-- Update both README languages when changing installation steps or limitations.
-- Keep credentials, real browser profiles, private URLs and network logs out of commits.
-
-讨论时请尊重其他贡献者。维护者会根据功能范围、可验证性和维护成本决定是否合并；提交 PR 不保证立即响应或合并。
-
-By contributing, you agree that your contribution is licensed under the repository's MIT License.
+By contributing you agree that your work is licensed under the MIT License.
