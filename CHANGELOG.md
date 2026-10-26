@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.1 — 2026-10-26
+
+- Settings: a clear warning that the proxy port must match your proxy app, and a "?" next to the heading that explains why the port is needed.
+- Microsoft Edge Add-ons listing materials in `store/edge/` (`npm run store`).
+
 ## 2.3.0 — 2026-10-26
 
 - **Works in Google Chrome as well as Microsoft Edge** — one package for both. The English name is now **Direct Switch** (Chinese: 网站直连开关) and the download is `direct-switch-x.y.z.zip`.

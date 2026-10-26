@@ -61,8 +61,37 @@
       </section>
 
       <section class="glass">
-        <h2 data-i18n="secProxy"></h2>
+        <div class="title-row">
+          <h2 data-i18n="secProxy"></h2>
+          <button
+            type="button"
+            class="help"
+            popovertarget="port-help"
+            data-i18n-title="portHelpTitle"
+          >
+            ?
+          </button>
+        </div>
         <p class="desc" data-i18n="secProxyDesc"></p>
+        <p class="warn">
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7.5v5.5M12 16.5h.01" />
+          </svg>
+          <span data-i18n="portWarn"></span>
+        </p>
+        <div id="port-help" class="popover" popover role="dialog" aria-labelledby="port-help-title">
+          <h3 id="port-help-title" data-i18n="portHelpTitle"></h3>
+          <p data-i18n="portHelp1"></p>
+          <p data-i18n="portHelp2"></p>
+          <button
+            type="button"
+            class="primary"
+            popovertarget="port-help"
+            popovertargetaction="hide"
+            data-i18n="gotIt"
+          ></button>
+        </div>
         <form id="proxy-form" class="fields">
           <label class="field"
             ><span data-i18n="fieldScheme"></span>

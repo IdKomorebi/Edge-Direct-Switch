@@ -239,6 +239,13 @@ try {
   await autoReload.click();
   await options.locator('#autoReload:checked').waitFor();
 
+  // Proxy port help: "?" opens an explanation, "Got it" closes it.
+  await options.locator('.help').click();
+  await options.locator('#port-help').waitFor({ state: 'visible' });
+  if (shots) await options.screenshot({ path: path.join(results, `port-help-${lang}.png`) });
+  await options.locator('#port-help .primary').click();
+  await options.locator('#port-help').waitFor({ state: 'hidden' });
+
   // 10. Appearance: an explicit choice overrides the system and survives a reload.
   await options.locator('[data-theme-value=dark]').click();
   await options.locator('html[data-theme=dark]').waitFor({ state: 'attached' });

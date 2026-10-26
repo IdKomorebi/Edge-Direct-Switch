@@ -242,5 +242,20 @@
   },
   "themeDark": {
     "message": "Dark"
+  },
+  "portWarn": {
+    "message": "Must match your proxy app’s port! If it is wrong, other sites cannot reach the proxy while a site is set to direct."
+  },
+  "portHelpTitle": {
+    "message": "Why is a proxy port needed?"
+  },
+  "portHelp1": {
+    "message": "An extension cannot change one site and leave the rest as they were — it can only replace the browser’s proxy configuration as a whole. Once in control, it must decide the route for every site. It also cannot read the Windows system proxy, so you tell it your proxy app’s port and every other site keeps using the proxy."
+  },
+  "portHelp2": {
+    "message": "The extension only takes control, and uses this port, while a site is set to direct. Otherwise the browser follows the system proxy as usual."
+  },
+  "gotIt": {
+    "message": "Got it"
   }
 }
