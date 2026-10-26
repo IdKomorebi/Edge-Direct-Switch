@@ -29,12 +29,12 @@ Works in **Microsoft Edge** and **Google Chrome** with the same package. Not yet
 
 ## Use
 
-| Control                                | What it does                                                                                   |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| **Connect directly / Use proxy again** | Switches the current site and reloads it. Ends when you close this tab or restart the browser. |
-| **Whole site: \*.example.edu**         | Also includes the site's other subdomains (logins, assets).                                    |
-| **Always connect directly**            | Adds the site to the **Saved sites** list.                                                     |
-| **Saved sites** (top right)            | Master switch for the list. When off, the list is kept but ignored.                            |
+| Control                                | What it does                                                                                                                                                                                |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Connect directly / Use proxy again** | Switches the current site and reloads it. Ends when you close this tab or restart the browser.                                                                                              |
+| **Whole site**                         | **On by default**: also includes the site's other subdomains, since portals often redirect, e.g. `gmis.` → `login.`. Turn it off to cover only the current host; your choice is remembered. |
+| **Always connect directly**            | Adds the site to the **Saved sites** list.                                                                                                                                                  |
+| **Saved sites** (top right)            | Master switch for the list. When off, the list is kept but ignored.                                                                                                                         |
 
 Switches can be tapped or dragged; only the switch itself reacts, not its label. The UI follows the browser's language (English and Simplified Chinese).
 

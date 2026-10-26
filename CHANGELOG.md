@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.3 — 2026-10-26
+
+- **"Whole site" is now on by default in the popup**, and the last choice is remembered. Tested on real portals: `gmis.xjtu.edu.cn` redirects to `org.xjtu.edu.cn` and `login.xjtu.edu.cn`, so a single-host "Connect directly" left those on the proxy and the page still failed. The browser test now checks that a sibling subdomain is direct.
+
 ## 2.3.2 — 2026-10-26
 
 - Drop the optional `short_name` from the manifest: "Direct Switch" exceeds the 12-character limit flagged by the Edge Add-ons validator. The full name is used instead; the popup header is unchanged.

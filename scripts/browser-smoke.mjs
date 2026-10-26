@@ -40,7 +40,7 @@ try {
       `--disable-extensions-except=${extension}`,
       `--load-extension=${extension}`,
       // Map test hosts to the local target. No external website is contacted.
-      '--host-resolver-rules=MAP *.route.test 127.0.0.1, MAP gmis.xjtu.edu.cn 127.0.0.1',
+      '--host-resolver-rules=MAP *.route.test 127.0.0.1, MAP *.xjtu.edu.cn 127.0.0.1',
       '--disable-background-networking',
       '--no-first-run',
       ...(process.env.TEST_ARGS?.split(' ').filter(Boolean) ?? []),
@@ -151,6 +151,8 @@ try {
   if (shots)
     await popup.locator('body').screenshot({ path: path.join(results, `popup-${lang}.png`) });
   assert.equal(await reloaded(site, popup.locator('#toggle').click()), 'DIRECT');
+  // "Whole site" is on by default: a redirect to a sibling login host must be direct as well.
+  assert.equal(await visit(other, 'login.xjtu.edu.cn'), 'DIRECT', 'sibling subdomain is direct');
   assert.equal(await visit(other, 'other.route.test'), 'PROXY');
   if (shots)
     await popup

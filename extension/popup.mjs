@@ -12,7 +12,16 @@ import {
 } from './ui.mjs';
 
 let tab, snap;
-let wideChoice = false; // scope picked before the page is switched to direct
+// "Whole site" defaults to on: portals often redirect to sibling subdomains (gmis.xjtu.edu.cn →
+// login.xjtu.edu.cn), which a single-host rule would leave on the proxy. The last choice is kept.
+const storedWide = () => {
+  try {
+    return localStorage.getItem('wideChoice') !== 'false';
+  } catch {
+    return true;
+  }
+};
+let wideChoice = storedWide(); // scope used when the page is switched to direct
 
 const DIRECT = ['temporary', 'saved'];
 const isDirect = (s) => DIRECT.includes(s?.route?.kind);
@@ -101,6 +110,9 @@ $('toggle').addEventListener('click', () =>
 $('wide').addEventListener('change', (event) =>
   act(async () => {
     wideChoice = event.target.checked;
+    try {
+      localStorage.setItem('wideChoice', String(wideChoice));
+    } catch {}
     if (isDirect(snap)) await setPage(true, snap.route.kind === 'saved', wideChoice);
   }),
 );
