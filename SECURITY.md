@@ -1,6 +1,6 @@
 # Security
 
-This extension changes Edge's proxy configuration. If you find a way it could route traffic somewhere unintended or be controlled by a web page, please report it privately with GitHub's **Report a vulnerability** button rather than a public issue.
+This extension changes the browser's (Edge or Chrome) proxy configuration. If you find a way it could route traffic somewhere unintended or be controlled by a web page, please report it privately with GitHub's **Report a vulnerability** button rather than a public issue.
 
 Do not post credentials, cookies, private domains or full network logs in public issues. Only the latest release is maintained.
 

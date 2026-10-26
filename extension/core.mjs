@@ -9,7 +9,7 @@ export function defaultSettings() {
     version: 2,
     alwaysOn: true, // master switch for the saved "always direct" list
     proxy: { scheme: 'http', host: '127.0.0.1', port: 7890 },
-    fallbackDirect: true, // `PROXY x; DIRECT`: keep Edge usable if the proxy client stops
+    fallbackDirect: true, // `PROXY x; DIRECT`: keep the browser usable if the proxy client stops
     bypassPrivate: true,
     autoReload: true,
     theme: 'system', // 'system' | 'light' | 'dark'

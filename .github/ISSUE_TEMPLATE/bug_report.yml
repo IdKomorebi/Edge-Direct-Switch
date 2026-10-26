@@ -8,8 +8,8 @@ body:
   - type: input
     id: environment
     attributes:
-      label: Edge version and operating system / 浏览器版本和系统
-      placeholder: Edge 155, Windows 11
+      label: Browser, version and operating system / 浏览器、版本和系统
+      placeholder: Edge 155 / Chrome 156, Windows 11
     validations:
       required: true
   - type: dropdown

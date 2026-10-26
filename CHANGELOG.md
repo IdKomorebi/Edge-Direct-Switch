@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.0 — 2026-10-26
+
+- **Works in Google Chrome as well as Microsoft Edge** — one package for both. The English name is now **Direct Switch** (Chinese: 网站直连开关) and the download is `direct-switch-x.y.z.zip`.
+- CI runs the real-browser test in both Edge and Chromium.
+- FAQ: what is left after uninstalling (nothing), and how to upgrade without losing settings.
+
 ## 2.2.0 — 2026-10-26
 
 - **Glass switches:** longer, spring-animated, and while held the thumb turns into a clear lens that refracts the track beneath it; dragging stretches it slightly. Primary buttons get a soft light that follows the pointer.

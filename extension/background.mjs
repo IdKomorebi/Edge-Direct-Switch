@@ -1,8 +1,8 @@
 import { Controller } from './controller.mjs';
 
-// The service worker is event-driven: Edge starts it for a popup message, a tab close or a
+// The service worker is event-driven: the browser starts it for a popup message, a tab close or a
 // browser start, and unloads it again after ~30 s idle. The PAC script itself is kept by
-// Edge, so routing keeps working while this worker is asleep.
+// the browser, so routing keeps working while this worker is asleep.
 const controller = new Controller(chrome);
 let queue = Promise.resolve();
 function serial(task) {

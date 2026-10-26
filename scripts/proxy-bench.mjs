@@ -116,8 +116,11 @@ async function run(config, name) {
   });
   try {
     if (!baseline) {
-      let worker = context.serviceWorkers()[0];
-      if (!worker) worker = await context.waitForEvent('serviceworker');
+      // Chromium builds may run their own component extensions; pick ours by its script name.
+      const ours = (w) => w.url().endsWith('/background.mjs');
+      let worker = context.serviceWorkers().find(ours);
+      if (!worker)
+        worker = await context.waitForEvent('serviceworker', { predicate: ours, timeout: 20000 });
       // The extension in control, with one direct rule active (the page that runs the test).
       const page = await context.newPage(); // the service worker cannot message itself
       await page.goto(`chrome-extension://${new URL(worker.url()).host}/options.html`);

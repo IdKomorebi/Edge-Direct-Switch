@@ -11,6 +11,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const results = path.join(root, 'test-results');
 const lang = process.env.TEST_LANG || 'zh-CN';
+// README screenshots; TEST_SCREENSHOTS=0 skips them (e.g. older Chromium builds).
+const shots = process.env.TEST_SCREENSHOTS !== '0';
 await mkdir(results, { recursive: true });
 const profile = await mkdtemp(path.join(results, 'profile-'));
 
@@ -41,11 +43,15 @@ try {
       '--host-resolver-rules=MAP *.route.test 127.0.0.1, MAP gmis.xjtu.edu.cn 127.0.0.1',
       '--disable-background-networking',
       '--no-first-run',
+      ...(process.env.TEST_ARGS?.split(' ').filter(Boolean) ?? []),
     ],
     viewport: { width: 1000, height: 900 },
   });
-  let worker = context.serviceWorkers()[0];
-  if (!worker) worker = await context.waitForEvent('serviceworker', { timeout: 20000 });
+  // Chromium builds may run their own component extensions; pick ours by its script name.
+  const ours = (w) => w.url().endsWith('/background.mjs');
+  let worker = context.serviceWorkers().find(ours);
+  if (!worker)
+    worker = await context.waitForEvent('serviceworker', { predicate: ours, timeout: 20000 });
   const base = `chrome-extension://${new URL(worker.url()).host}`;
   const level = () =>
     worker.evaluate(async () => (await chrome.proxy.settings.get({})).levelOfControl);
@@ -110,10 +116,11 @@ try {
     </style><div class="wrap"><figure><img src="${before}"><figcaption>${caption[0]}</figcaption></figure>
       <div class="arrow">➜</div>
       <figure><img src="${after}"><figcaption>${caption[1]}</figcaption></figure></div>`);
-    await page.locator('.wrap').screenshot({
-      path: path.join(results, `flow-${lang}.png`),
-      omitBackground: true,
-    });
+    if (shots)
+      await page.locator('.wrap').screenshot({
+        path: path.join(results, `flow-${lang}.png`),
+        omitBackground: true,
+      });
     await page.close();
   }
 
@@ -141,14 +148,19 @@ try {
 
   // 3. Popup: "Connect directly" for this time only.
   let popup = await openPopup(site);
-  await popup.locator('body').screenshot({ path: path.join(results, `popup-${lang}.png`) });
+  if (shots)
+    await popup.locator('body').screenshot({ path: path.join(results, `popup-${lang}.png`) });
   assert.equal(await reloaded(site, popup.locator('#toggle').click()), 'DIRECT');
   assert.equal(await visit(other, 'other.route.test'), 'PROXY');
-  await popup.locator('body').screenshot({ path: path.join(results, `popup-direct-${lang}.png`) });
+  if (shots)
+    await popup
+      .locator('body')
+      .screenshot({ path: path.join(results, `popup-direct-${lang}.png`) });
   await popup.emulateMedia({ colorScheme: 'dark' });
-  await popup.locator('body').screenshot({ path: path.join(results, `popup-dark-${lang}.png`) });
+  if (shots)
+    await popup.locator('body').screenshot({ path: path.join(results, `popup-dark-${lang}.png`) });
   await popup.close();
-  await composeFlow();
+  if (shots) await composeFlow();
 
   // 4. Closing the tab ends the one-time rule.
   const siteUrl = site.url();
@@ -232,10 +244,11 @@ try {
   await options.locator('html[data-theme=dark]').waitFor({ state: 'attached' });
   await options.reload();
   await options.locator('html[data-theme=dark]').waitFor({ state: 'attached' });
-  await options.screenshot({
-    path: path.join(results, `options-dark-${lang}.png`),
-    fullPage: true,
-  });
+  if (shots)
+    await options.screenshot({
+      path: path.join(results, `options-dark-${lang}.png`),
+      fullPage: true,
+    });
   await options.locator('[data-theme-value=system]').click();
   await options.locator('[data-theme-value=system][aria-pressed=true]').waitFor();
   assert.equal(await options.locator('html').getAttribute('data-theme'), null);
@@ -255,7 +268,8 @@ try {
   await options.locator('#proxy-form button[type=submit]').click();
   await options.locator('#message:not([hidden])').waitFor();
   await options.locator('#message').waitFor({ state: 'hidden' });
-  await options.screenshot({ path: path.join(results, `options-${lang}.png`), fullPage: true });
+  if (shots)
+    await options.screenshot({ path: path.join(results, `options-${lang}.png`), fullPage: true });
 
   await writeFile(
     path.join(results, 'browser-smoke.json'),

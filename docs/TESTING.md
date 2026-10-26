@@ -12,6 +12,8 @@ npm run pack
 
 ## Real browser test
 
+CI runs it in both Edge and Chromium. Branded Google Chrome 137+ no longer loads unpacked extensions from the command line, so automated runs use Chromium, which shares Chrome's engine; installing by hand through `chrome://extensions` works normally.
+
 Requires Microsoft Edge:
 
 ```sh
@@ -19,7 +21,7 @@ npm run test:browser
 TEST_LANG=en npm run test:browser   # English UI
 ```
 
-The script launches Edge headlessly with a **new throwaway profile** in `test-results/`, a local "target" server (answers `DIRECT`) and a local marker proxy (answers `PROXY`). Test host names are mapped to `127.0.0.1` with `--host-resolver-rules`, so no external website is contacted.
+The script launches Edge (or `TEST_BROWSER=chromium`, the open-source base of Chrome) headlessly with a **new throwaway profile** in `test-results/`, a local "target" server (answers `DIRECT`) and a local marker proxy (answers `PROXY`). Test host names are mapped to `127.0.0.1` with `--host-resolver-rules`, so no external website is contacted.
 
 It drives the real popup and settings page and checks that:
 
@@ -33,7 +35,7 @@ It drives the real popup and settings page and checks that:
 
 Screenshots for the README are written to `test-results/` (`popup-*.png`, `options-*.png`) and copied to `docs/images/` by hand when the UI changes.
 
-Environment variables: `TEST_BROWSER` (Playwright channel, default `msedge`), `TEST_EXECUTABLE` (explicit browser binary), `PLAYWRIGHT_MODULE` (path to an existing Playwright install), `TEST_LANG` (default `zh-CN`).
+Environment variables: `TEST_BROWSER` (Playwright channel: `msedge` by default, or `chromium` after `npx playwright install chromium`), `TEST_SCREENSHOTS=0` (skip README screenshots), `TEST_EXECUTABLE` (explicit browser binary), `PLAYWRIGHT_MODULE` (path to an existing Playwright install), `TEST_LANG` (default `zh-CN`).
 
 ## Routing benchmark
 

@@ -17,9 +17,15 @@ jobs:
       - run: npm run pack
       - uses: actions/upload-artifact@v4
         with:
-          name: edge-direct-switch
+          name: direct-switch
           path: dist/*.zip
   browser:
+    # The same package is tested in Edge and in Chromium (the open-source base of Chrome).
+    # Branded Chrome no longer loads unpacked extensions from the command line.
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [msedge, chromium]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,11 +33,15 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci
+      - if: matrix.browser == 'chromium'
+        run: npx playwright install chromium
       - run: npm run test:browser
+        env:
+          TEST_BROWSER: ${{ matrix.browser }}
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: browser-test-diagnostics
+          name: browser-test-diagnostics-${{ matrix.browser }}
           path: |
             test-results/*.json
             test-results/*.png

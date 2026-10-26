@@ -19,20 +19,35 @@ _Browser DIRECT does not bypass TUN mode, and some resources live on other domai
 
 ## 为什么另一个标签页也直连了？
 
-Edge 的代理规则按域名判断，拿不到“是哪个标签页”。同一网站的所有标签页共用规则；“关闭标签页后恢复”指的是**发起直连的那个**标签页关闭时。
+浏览器的代理规则按域名判断，拿不到“是哪个标签页”。同一网站的所有标签页共用规则；“关闭标签页后恢复”指的是**发起直连的那个**标签页关闭时。
 
-## 关掉代理软件后，Edge 还能用吗？
+## 关掉代理软件后，浏览器还能用吗？
 
-能。默认开启的「代理软件关闭时自动直连」会让连不上代理时改为直连。注意：代理连不上之后，Edge 会在几分钟内暂时不再尝试它，所以刚重新打开代理软件时，需要代理的网站可能要稍等片刻（或重启浏览器）才恢复。不需要这个行为可以在设置里关闭。
+能。默认开启的「代理软件关闭时自动直连」会让连不上代理时改为直连。注意：代理连不上之后，浏览器会在几分钟内暂时不再尝试它，所以刚重新打开代理软件时，需要代理的网站可能要稍等片刻（或重启浏览器）才恢复。不需要这个行为可以在设置里关闭。
 
 ## 提示「另一个扩展正在控制代理」
 
 ZeroOmega、FoxyProxy 等代理扩展与本扩展不能同时控制代理。停用其中一个即可。被组织策略锁定时，扩展无法修改代理设置。
 
+## 删除扩展后会有残留吗？
+
+不会。扩展写入的代理设置由浏览器按扩展分别记录，删除或停用扩展时会自动撤销；扩展的存储（包括常驻网站）也会一起删除。扩展从不修改 Windows 系统代理。可以打开 `edge://net-internals/#proxy`（Chrome 为 `chrome://net-internals/#proxy`）确认当前生效的代理设置。
+
+_Removing the extension reverts its proxy setting and deletes its data; Windows proxy settings are never touched._
+
+## 升级或重装后设置没了？
+
+浏览器按**扩展所在的文件夹**识别本地加载的扩展：
+
+- **保留设置的升级方式**：把新版本文件解压覆盖到原来的文件夹，然后在扩展管理页点该扩展的「重新加载」。
+- 删除后重新安装、换了文件夹，或把 ZIP 直接拖进浏览器安装，会被当成一个新扩展：代理端口恢复默认 `7890`，常驻网站需要重新添加。
+
+_Unpacked extensions are identified by their folder. Overwrite the files in place and click Reload to keep settings; a new folder means a fresh install._
+
 ## 从 1.x 升级
 
-设置和常驻网站会自动迁移。1.x 的「临时直连 30 分钟」改为「关闭标签页后结束」，不再中途自动失效。
+设置和常驻网站会自动迁移（需按上面的方式在原文件夹中升级）。1.x 的「临时直连 30 分钟」改为「关闭标签页后结束」，不再中途自动失效。
 
 ## 报告问题
 
-请在 [Issues](https://github.com/IdKomorebi/Edge-Direct-Switch/issues) 中提供 Edge 版本、扩展版本、代理软件及模式（系统代理 / TUN）和复现步骤。不要粘贴密码、Cookie 或内网地址。
+请在 [Issues](https://github.com/IdKomorebi/Edge-Direct-Switch/issues) 中提供浏览器（Edge / Chrome）及版本、扩展版本、代理软件及模式（系统代理 / TUN）和复现步骤。不要粘贴密码、Cookie 或内网地址。

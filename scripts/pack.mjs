@@ -69,6 +69,6 @@ end.writeUInt16LE(count, 10);
 end.writeUInt32LE(centralData.length, 12);
 end.writeUInt32LE(offset, 16);
 await mkdir(path.join(root, 'dist'), { recursive: true });
-const output = path.join(root, 'dist', `edge-direct-switch-${manifest.version}.zip`);
+const output = path.join(root, 'dist', `direct-switch-${manifest.version}.zip`);
 await writeFile(output, Buffer.concat([...chunks, centralData, end]));
 console.log(output);

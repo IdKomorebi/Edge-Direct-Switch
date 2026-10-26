@@ -1,6 +1,6 @@
 {
   "extName": {
-    "message": "Edge Direct Switch"
+    "message": "Direct Switch"
   },
   "extShort": {
     "message": "Direct Switch"
@@ -107,7 +107,7 @@
     "message": "Updated. Please reload the page."
   },
   "optionsTitle": {
-    "message": "Settings · Edge Direct Switch"
+    "message": "Settings · Direct Switch"
   },
   "secProxy": {
     "message": "Proxy"
@@ -137,7 +137,7 @@
     "message": "Go direct if the proxy is unreachable"
   },
   "optFallbackDesc": {
-    "message": "Keeps Edge usable when your proxy app is not running."
+    "message": "Keeps the browser usable when your proxy app is not running."
   },
   "optPrivate": {
     "message": "Bypass the local network"
@@ -190,16 +190,16 @@
     "message": "Direct this time"
   },
   "secTempsDesc": {
-    "message": "Each ends when the tab that started it closes, or when Edge restarts."
+    "message": "Each ends when the tab that started it closes, or when the browser restarts."
   },
   "secHow": {
     "message": "How it works"
   },
   "how1": {
-    "message": "The extension gives Edge a small local PAC script: listed sites go DIRECT, everything else goes to the proxy above. Only this Edge profile is affected — Windows proxy settings and other apps are not touched."
+    "message": "The extension gives the browser a small local PAC script: listed sites go DIRECT, everything else goes to the proxy above. Only this browser profile is affected — Windows proxy settings and other apps are not touched."
   },
   "how2": {
-    "message": "With no direct rules active, the extension hands proxy control back and Edge follows the system proxy as usual. The background worker sleeps when idle; nothing stays resident."
+    "message": "With no direct rules active, the extension hands proxy control back and the browser follows the system proxy as usual. The background worker sleeps when idle; nothing stays resident."
   },
   "how3": {
     "message": "Rules work per domain, so other tabs of the same site connect directly too. If your proxy app runs in TUN / virtual adapter mode, browser DIRECT cannot bypass it — add a DIRECT rule in the proxy app instead."

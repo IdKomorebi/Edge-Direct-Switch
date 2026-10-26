@@ -17,8 +17,8 @@ import {
 // Saved settings live in storage.local. One-time ("this time only") rules live in
 // storage.session, so a browser restart always clears them.
 //
-// The extension holds Edge's proxy setting only while at least one DIRECT rule is active.
-// With nothing to bypass it releases control and Edge follows the system proxy again.
+// The extension holds the browser's proxy setting only while at least one DIRECT rule is active.
+// With nothing to bypass it releases control and the browser follows the system proxy again.
 export class Controller {
   constructor(api) {
     this.api = api;
@@ -42,7 +42,7 @@ export class Controller {
     return this.api.proxy.settings.get({ incognito: false });
   }
 
-  // Bring Edge's proxy setting in line with the desired state. Returns true when it changed.
+  // Bring the browser's proxy setting in line with the desired state. Returns true when it changed.
   async apply(settings, temps) {
     const status = await this.status();
     const ours = status.levelOfControl === 'controlled_by_this_extension';

@@ -92,7 +92,7 @@ html {
   line-height: 1.5;
   color: var(--text);
 }
-/* Edge injects `body { font-size: 75% }` into extension pages; reset it. */
+/* Chromium (Edge, Chrome) injects `body { font-size: 75% }` into extension pages; reset it. */
 body {
   margin: 0;
   font: inherit;
