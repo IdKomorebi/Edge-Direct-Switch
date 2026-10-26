@@ -12,7 +12,7 @@ _Other sites stop loading → the proxy port in Settings doesn't match your clie
 
 1. 刷新或重新打开页面，结束已有的连接。
 2. 代理软件是否开着 **TUN / 虚拟网卡 / 增强模式**？这时浏览器直连无法绕过它，请在代理软件的规则里给该域名加 `DIRECT`。
-3. 只有部分内容失败（登录、验证码、视频）？这些资源可能在别的域名上。打开「包含整个站点」，或按 F12 → 网络面板找到失败的域名，在设置页添加。
+3. 只有部分内容失败（登录、验证码、视频）？这些资源可能在别的域名上。把直连范围选为「整个站点」，或按 F12 → 网络面板找到失败的域名，在设置页添加。
 4. 校内系统可能本身就要求校园网或学校 VPN，这与代理无关。
 
 _Browser DIRECT does not bypass TUN mode, and some resources live on other domains._

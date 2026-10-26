@@ -666,7 +666,7 @@ select:focus {
     background 0.18s,
     color 0.18s;
 }
-.segmented button[aria-pressed='true'] {
+.segmented button:is([aria-pressed='true'], [aria-checked='true']) {
   color: var(--text);
   background: var(--surface-strong);
   box-shadow:
@@ -781,4 +781,22 @@ details p {
   display: block;
   margin: 16px 0 0 auto;
   padding: 8px 20px;
+}
+
+/* Popup scope picker: a compact segmented control inside a card row. */
+.popup .segmented {
+  flex: none;
+}
+.popup .segmented button {
+  padding: 5px 11px;
+  font-size: 12.5px;
+}
+.scope-row {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+.scope-desc {
+  flex-basis: 100%;
+  color: var(--muted);
+  font-size: 12px;
 }

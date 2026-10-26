@@ -29,12 +29,12 @@ Works in **Microsoft Edge** and **Google Chrome** with the same package. Not yet
 
 ## Use
 
-| Control                                | What it does                                                                                                                                                                                |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Connect directly / Use proxy again** | Switches the current site and reloads it. Ends when you close this tab or restart the browser.                                                                                              |
-| **Whole site**                         | **On by default**: also includes the site's other subdomains, since portals often redirect, e.g. `gmis.` → `login.`. Turn it off to cover only the current host; your choice is remembered. |
-| **Always connect directly**            | Adds the site to the **Saved sites** list.                                                                                                                                                  |
-| **Saved sites** (top right)            | Master switch for the list. When off, the list is kept but ignored.                                                                                                                         |
+| Control                                | What it does                                                                                                                                                                                                                                                                 |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Connect directly / Use proxy again** | Switches the current site and reloads it. Ends when you close this tab or restart the browser.                                                                                                                                                                               |
+| **Scope** (Whole site / This host)     | Applies to both “Connect directly” and “Always connect directly”. **Whole site by default**: also includes the site's other subdomains, since portals often redirect, e.g. `gmis.` → `login.`. Choose “This host” to cover only the current host. Your choice is remembered. |
+| **Always connect directly**            | Adds the site to the **Saved sites** list.                                                                                                                                                                                                                                   |
+| **Saved sites** (top right)            | Master switch for the list. When off, the list is kept but ignored.                                                                                                                                                                                                          |
 
 Switches can be tapped or dragged; only the switch itself reacts, not its label. The UI follows the browser's language (English and Simplified Chinese).
 
@@ -83,7 +83,7 @@ Differences are within noise (93 vs 108 ms is one 15.6 ms Windows timer tick). P
 
 - Rules are **per domain**, not per tab or per path.
 - Browser DIRECT cannot bypass a client running in **TUN / virtual adapter** mode; add a DIRECT rule in the client instead.
-- Pages may load logins or video from other domains. Use **Whole site** or add those domains in Settings.
+- Pages may load logins or video from other domains. Use the **Whole site** scope or add those domains in Settings.
 - No separate InPrivate / Incognito control.
 
 ## Permissions and privacy

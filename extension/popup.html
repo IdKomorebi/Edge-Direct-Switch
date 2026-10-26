@@ -34,6 +34,18 @@
         </div>
       </section>
 
+      <!-- Scope applies to both "Connect directly" and "Always connect directly". -->
+      <section id="scope" class="glass list" hidden>
+        <div class="row scope-row">
+          <span id="scope-label" class="row-text" data-i18n="scopeLabel"></span>
+          <div class="segmented" role="radiogroup" aria-labelledby="scope-label">
+            <button type="button" role="radio" data-wide="true" data-i18n="scopeSite"></button>
+            <button type="button" role="radio" data-wide="false" data-i18n="scopeHost"></button>
+          </div>
+          <small id="scope-desc" class="scope-desc"></small>
+        </div>
+      </section>
+
       <button id="toggle" class="big primary" disabled></button>
       <p id="hint" class="hint">
         <svg class="i i-info" viewBox="0 0 24 24" aria-hidden="true">
@@ -52,20 +64,6 @@
       </p>
 
       <section id="options" class="glass list" hidden>
-        <div class="row">
-          <span class="row-text">
-            <span id="wide-label" data-i18n="optWide"></span>
-            <small id="wide-desc"></small>
-          </span>
-          <input
-            id="wide"
-            type="checkbox"
-            role="switch"
-            class="switch"
-            aria-labelledby="wide-label"
-            aria-describedby="wide-desc"
-          />
-        </div>
         <div class="row">
           <span class="row-text">
             <span id="remember-label" data-i18n="optRemember"></span>

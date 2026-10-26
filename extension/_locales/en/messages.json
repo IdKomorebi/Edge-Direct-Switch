@@ -50,9 +50,6 @@
   "hintPrivate": {
     "message": "Local addresses always connect directly"
   },
-  "optWide": {
-    "message": "Whole site"
-  },
   "optRemember": {
     "message": "Always connect directly"
   },
@@ -257,5 +254,22 @@
   },
   "gotIt": {
     "message": "Got it"
+  },
+  "scopeLabel": {
+    "message": "Scope"
+  },
+  "scopeSite": {
+    "message": "Whole site"
+  },
+  "scopeHost": {
+    "message": "This host"
+  },
+  "scopeHostDesc": {
+    "message": "Only $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
   }
 }

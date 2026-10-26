@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.4 — 2026-10-26
+
+- **Popup: scope is now its own control.** "Whole site / This host" sits above the main button because it applies to both "Connect directly" and "Always connect directly"; the list below keeps only the "always" switch.
+
 ## 2.3.3 — 2026-10-26
 
 - **"Whole site" is now on by default in the popup**, and the last choice is remembered. Tested on real portals: `gmis.xjtu.edu.cn` redirects to `org.xjtu.edu.cn` and `login.xjtu.edu.cn`, so a single-host "Connect directly" left those on the proxy and the page still failed. The browser test now checks that a sibling subdomain is direct.

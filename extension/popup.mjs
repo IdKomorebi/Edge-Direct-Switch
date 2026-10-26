@@ -65,11 +65,16 @@ function render() {
   $('hint').dataset.icon = hint[1];
 
   $('options').hidden = !host || kind === 'private';
-  // "Whole site" always covers the registrable domain; say exactly what that includes.
+  // Scope applies to both actions. "Whole site" covers the registrable domain; say exactly
+  // what the current choice includes. Hidden for IP addresses, which have no site.
   const wideRoot = direct && route.rule.subdomains ? route.rule.domain : root;
-  $('wide').closest('.row').hidden = !wideRoot;
-  $('wide-desc').textContent = wideRoot ? t('optWideDesc', wideRoot) : '';
-  $('wide').checked = direct ? route.rule.subdomains : wideChoice;
+  const wide = direct ? route.rule.subdomains : wideChoice;
+  $('scope').hidden = !host || kind === 'private' || !wideRoot;
+  $('scope-desc').textContent = wide
+    ? t('optWideDesc', wideRoot ?? '')
+    : t('scopeHostDesc', host ?? '');
+  for (const button of $('scope').querySelectorAll('[data-wide]'))
+    button.setAttribute('aria-checked', String((button.dataset.wide === 'true') === wide));
   $('remember').checked = ['saved', 'savedOff'].includes(kind);
   $('remember').disabled = !settings.alwaysOn;
   $('rememberHint').hidden = settings.alwaysOn;
@@ -107,15 +112,19 @@ const setPage = (direct, remember, wide) =>
 $('toggle').addEventListener('click', () =>
   act(() => (isDirect(snap) ? setPage(false) : setPage(true, false, wideChoice))),
 );
-$('wide').addEventListener('change', (event) =>
-  act(async () => {
-    wideChoice = event.target.checked;
-    try {
-      localStorage.setItem('wideChoice', String(wideChoice));
-    } catch {}
-    if (isDirect(snap)) await setPage(true, snap.route.kind === 'saved', wideChoice);
-  }),
-);
+for (const button of $('scope').querySelectorAll('[data-wide]'))
+  button.addEventListener('click', () =>
+    act(async () => {
+      const next = button.dataset.wide === 'true';
+      const current = isDirect(snap) ? snap.route.rule.subdomains : wideChoice;
+      if (next === current) return;
+      wideChoice = next;
+      try {
+        localStorage.setItem('wideChoice', String(wideChoice));
+      } catch {}
+      if (isDirect(snap)) await setPage(true, snap.route.kind === 'saved', wideChoice);
+    }),
+  );
 // "Always" only changes persistence: turning it off keeps the page direct for this tab.
 $('remember').addEventListener('change', (event) =>
   act(() =>

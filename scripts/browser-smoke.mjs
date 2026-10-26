@@ -153,6 +153,16 @@ try {
   assert.equal(await reloaded(site, popup.locator('#toggle').click()), 'DIRECT');
   // "Whole site" is on by default: a redirect to a sibling login host must be direct as well.
   assert.equal(await visit(other, 'login.xjtu.edu.cn'), 'DIRECT', 'sibling subdomain is direct');
+  // Scope picker: "This host" narrows the live rule, "Whole site" widens it again.
+  await reloaded(site, popup.locator('[data-wide=false]').click());
+  assert.equal(
+    await visit(other, 'login.xjtu.edu.cn'),
+    'PROXY',
+    'this-host scope excludes siblings',
+  );
+  assert.equal(await body(site), 'DIRECT');
+  await reloaded(site, popup.locator('[data-wide=true]').click());
+  assert.equal(await visit(other, 'login.xjtu.edu.cn'), 'DIRECT', 'whole-site scope again');
   assert.equal(await visit(other, 'other.route.test'), 'PROXY');
   if (shots)
     await popup

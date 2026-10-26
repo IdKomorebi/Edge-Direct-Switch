@@ -50,9 +50,6 @@
   "hintPrivate": {
     "message": "局域网地址始终直连，可在设置中关闭"
   },
-  "optWide": {
-    "message": "包含整个站点"
-  },
   "optRemember": {
     "message": "始终直连此网站"
   },
@@ -205,7 +202,7 @@
     "message": "规则按域名生效，同一网站的其他标签页也会直连。若代理软件开启了 TUN（虚拟网卡）模式，浏览器直连无法绕过它，请在代理软件中添加直连规则。"
   },
   "how4": {
-    "message": "网站的登录、视频等内容可能来自其他域名。若页面只有部分内容加载失败，可选择「包含整个站点」或在这里手动添加。"
+    "message": "网站的登录、视频等内容可能来自其他域名。若页面只有部分内容加载失败，可将直连范围选为「整个站点」或在这里手动添加。"
   },
   "optWideDesc": {
     "message": "$ROOT$ 及其所有子域名",
@@ -257,5 +254,22 @@
   },
   "gotIt": {
     "message": "知道了"
+  },
+  "scopeLabel": {
+    "message": "直连范围"
+  },
+  "scopeSite": {
+    "message": "整个站点"
+  },
+  "scopeHost": {
+    "message": "仅此域名"
+  },
+  "scopeHostDesc": {
+    "message": "仅 $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
   }
 }
