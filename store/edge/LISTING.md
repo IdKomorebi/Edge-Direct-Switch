@@ -18,6 +18,16 @@ Images: `npm run store` (after `npm run test:browser` in both languages) writes 
 | Large promo (1400×560) | `<lang>/promo-large-1400x560.png`                                                |
 | Screenshots (1280×800) | `<lang>/screenshot-1.png` … `screenshot-3.png`                                   |
 
+Submitted 2026-10-26 (version 2.3.2), in review.
+
+| Identifier         | Value                                                                                                      |
+| ------------------ | ---------------------------------------------------------------------------------------------------------- |
+| Microsoft Store ID | `0RDCKGM7767G`                                                                                             |
+| CRX ID             | `mjannkajnlaailcolbpbgjmgimlaeoji`                                                                         |
+| Listing URL        | `https://microsoftedge.microsoft.com/addons/detail/mjannkajnlaailcolbpbgjmgimlaeoji` (live once published) |
+
+On the submit page, answer "testers need other information" with **yes** so the certification notes below can be entered (no account is required; the notes are testing steps). Notes are required again with every submission.
+
 Name and short description come from the package (`_locales`): 网站直连开关 / Direct Switch.
 
 ## 简体中文 (zh-CN)
