@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.2 — 2026-10-26
+
+- Drop the optional `short_name` from the manifest: "Direct Switch" exceeds the 12-character limit flagged by the Edge Add-ons validator. The full name is used instead; the popup header is unchanged.
+
 ## 2.3.1 — 2026-10-26
 
 - Settings: a clear warning that the proxy port must match your proxy app, and a "?" next to the heading that explains why the port is needed.
